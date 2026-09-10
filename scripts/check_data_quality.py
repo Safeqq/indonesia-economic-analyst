@@ -21,19 +21,25 @@ BLOCKING_CHECK_FILES = (
     QUALITY_DIRECTORY / "check_latest_pipeline_failure.sql",
     QUALITY_DIRECTORY / "check_stg_world_bank_grain.sql",
     QUALITY_DIRECTORY / "check_stg_bps_grain.sql",
+    QUALITY_DIRECTORY / "check_stg_bank_indonesia_grain.sql",
     QUALITY_DIRECTORY / "check_bps_missing_mandatory_fields.sql",
     QUALITY_DIRECTORY / "check_bps_region_codes.sql",
     QUALITY_DIRECTORY / "check_bps_metadata_history.sql",
     QUALITY_DIRECTORY / "check_bps_value_ranges.sql",
+    QUALITY_DIRECTORY / "check_bi_missing_mandatory_fields.sql",
+    QUALITY_DIRECTORY / "check_bi_value_ranges.sql",
+    QUALITY_DIRECTORY / "check_bi_monthly_coverage.sql",
     QUALITY_DIRECTORY / "check_mart_national_overview_grain.sql",
     QUALITY_DIRECTORY / "check_mart_indicator_trends_grain.sql",
     QUALITY_DIRECTORY / "check_mart_asean_comparison_grain.sql",
     QUALITY_DIRECTORY / "check_mart_regional_analysis_grain.sql",
+    QUALITY_DIRECTORY / "check_mart_monetary_conditions_grain.sql",
 )
 INFORMATIONAL_CHECK_FILES = (
     QUALITY_DIRECTORY / "check_data_freshness.sql",
     QUALITY_DIRECTORY / "check_missing_periods.sql",
     QUALITY_DIRECTORY / "check_bps_missing_periods.sql",
+    QUALITY_DIRECTORY / "check_bi_missing_periods.sql",
 )
 
 

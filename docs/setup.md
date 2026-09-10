@@ -36,6 +36,7 @@ MYSQL_PASSWORD=password_lokal_yang_kuat
 
 Isi `BPS_API_KEY` dengan token dari portal developer BPS sebelum menjalankan
 `make pipeline-bps`. Setup World Bank tetap dapat digunakan jika field ini kosong.
+Pipeline Bank Indonesia tidak memerlukan API key.
 
 ## 4. Buat database dan user aplikasi
 
@@ -67,7 +68,9 @@ make check
 make schema
 make pipeline
 make pipeline-bps
+make pipeline-bi
 make marts
 make quality
+make verify-bi
 make api
 ```

@@ -23,10 +23,12 @@ pytestmark = [
 EXPECTED_VIEWS = {
     "stg_world_bank",
     "stg_bps",
+    "stg_bank_indonesia",
     "mart_national_overview",
     "mart_indicator_trends",
     "mart_asean_comparison",
     "mart_regional_analysis",
+    "mart_monetary_conditions",
 }
 
 
@@ -44,10 +46,12 @@ def test_marts_build_and_have_expected_grain(engine):
     grain_checks = (
         "check_stg_world_bank_grain.sql",
         "check_stg_bps_grain.sql",
+        "check_stg_bank_indonesia_grain.sql",
         "check_mart_national_overview_grain.sql",
         "check_mart_indicator_trends_grain.sql",
         "check_mart_asean_comparison_grain.sql",
         "check_mart_regional_analysis_grain.sql",
+        "check_mart_monetary_conditions_grain.sql",
     )
     quality_directory = Path(__file__).resolve().parents[2] / "sql" / "quality"
     with engine.connect() as connection:
@@ -82,3 +86,28 @@ def test_quality_queries_execute_against_marts(engine):
         for sql_file in BLOCKING_CHECK_FILES + INFORMATIONAL_CHECK_FILES:
             result = connection.exec_driver_sql(sql_file.read_text(encoding="utf-8"))
             result.fetchmany(1)
+
+
+def test_bank_indonesia_mart_combines_two_real_monthly_series(engine):
+    with engine.connect() as connection:
+        staging_count = connection.execute(
+            text("SELECT COUNT(*) FROM stg_bank_indonesia")
+        ).scalar_one()
+        mart_count = connection.execute(
+            text("SELECT COUNT(*) FROM mart_monetary_conditions")
+        ).scalar_one()
+        incomplete = connection.execute(
+            text(
+                """
+                SELECT COUNT(*)
+                FROM mart_monetary_conditions
+                WHERE bi_rate_percent IS NULL
+                   OR jisdor_idr_per_usd IS NULL
+                   OR indicator_coverage <> 2
+                """
+            )
+        ).scalar_one()
+
+    assert staging_count > 0
+    assert mart_count * 2 == staging_count
+    assert incomplete == 0

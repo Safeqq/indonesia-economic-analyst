@@ -1,8 +1,8 @@
 # Indonesia Economic Intelligence
 
 Project data analyst end-to-end menggunakan data resmi dari World Bank, BPS,
-dan Bank Indonesia. Pipeline World Bank aktif; pipeline BPS sudah tersedia dan
-memerlukan token pengguna untuk pengambilan produksi.
+dan Bank Indonesia. Pipeline World Bank dan Bank Indonesia aktif; pipeline BPS
+sudah tersedia dan memerlukan token pengguna untuk pengambilan produksi.
 
 ## Komponen
 
@@ -34,7 +34,9 @@ Panduan lengkap tersedia di `docs/setup.md`.
 ```bash
 make pipeline   # mengambil lima indikator World Bank untuk Indonesia, 2000–2025
 make pipeline-bps  # mengambil dua tabel regional BPS; perlu BPS_API_KEY
+make pipeline-bi  # mengambil BI-Rate dan JISDOR hingga bulan lengkap terakhir
 make verify-bps  # memeriksa dua variabel dan cakupan 38 provinsi di database
+make verify-bi  # memeriksa dua seri BI, periode, dan run produksi terbaru
 make schema     # menerapkan penambahan schema secara idempotent
 make marts      # membuat ulang staging dan analytical views
 make quality    # menjalankan pemeriksaan kualitas dan freshness
@@ -69,6 +71,26 @@ Setiap run merekonsiliasi `config/bps_provinces.yml` dengan endpoint domain BPS,
 mengambil seluruh halaman inventaris periode, lalu menyimpan respons utuh di
 `data/raw/bps/`. API key hanya dipakai pada request dan tidak ditulis ke snapshot.
 Nama, unit, definisi, catatan, serta ID seri turunan berasal dari metadata API.
+
+Pipeline Bank Indonesia tidak memerlukan API key. Pipeline mengunduh workbook
+BI-Rate dan XML JISDOR resmi, menyimpan kedua respons secara utuh, lalu memuat
+dua seri yang sejajar per bulan: BI-Rate yang berlaku pada akhir bulan dan
+rata-rata JISDOR harian pada bulan tersebut.
+
+```fish
+make pipeline-bi
+make marts
+make verify-bi
+```
+
+Secara default, periode dimulai Agustus 2016 dan berakhir pada bulan kalender
+terakhir yang sudah lengkap. Rentang lain harus memakai awal dan akhir bulan:
+
+```fish
+.venv/bin/python -m pipelines.jobs.run_bank_indonesia_pipeline \
+  --start-date 2020-01-01 \
+  --end-date 2025-12-31
+```
 
 Untuk mengisi benchmark 11 negara ASEAN dari Fish:
 

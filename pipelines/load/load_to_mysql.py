@@ -304,6 +304,12 @@ def load_bps_connection(
     return load_economic_data_connection(frame, run_id, connection, metadata)
 
 
+def load_bank_indonesia_connection(
+    frame: pd.DataFrame, run_id: int, connection: Connection
+) -> int:
+    return load_economic_data_connection(frame, run_id, connection)
+
+
 def load_world_bank(frame: pd.DataFrame, run_id: int, engine: Engine) -> int:
     with engine.begin() as connection:
         return load_world_bank_connection(frame, run_id, connection)
@@ -314,3 +320,8 @@ def load_bps(
 ) -> int:
     with engine.begin() as connection:
         return load_bps_connection(frame, metadata, run_id, connection)
+
+
+def load_bank_indonesia(frame: pd.DataFrame, run_id: int, engine: Engine) -> int:
+    with engine.begin() as connection:
+        return load_bank_indonesia_connection(frame, run_id, connection)

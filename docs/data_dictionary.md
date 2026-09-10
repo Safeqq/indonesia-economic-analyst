@@ -67,6 +67,13 @@ Setiap file `data/raw/bps/bps_<timestamp>.json` berisi respons domain provinsi,
 seluruh halaman inventaris periode, dan payload tabel dinamis persis dari BPS.
 URL serta parameter publik dicatat, sedangkan `BPS_API_KEY` tidak disimpan.
 
+## Snapshot mentah Bank Indonesia
+
+Setiap run membuat tiga file bertimestamp di `data/raw/bank_indonesia`: workbook
+BI-Rate `.xlsx`, respons web-service JISDOR `.xml`, dan manifest `.json`. Dua file
+sumber disimpan byte-for-byte. Manifest mencatat request publik dan checksum
+SHA-256 untuk memeriksa integritas snapshot.
+
 ## `dim_indicator_metadata_history`
 
 Grain: satu versi metadata untuk satu indikator dan sumber. Hash SHA-256 meliputi
@@ -106,3 +113,16 @@ Grain: satu seri BPS, provinsi, sumber, dan tanggal observasi. Kode seri memuat 
 Grain: satu seri BPS, provinsi, dan tanggal. Menyediakan perubahan tahunan,
 rata-rata provinsi yang tersedia, selisih dari rata-rata, coverage, rank, dan
 percentile.
+
+## `stg_bank_indonesia`
+
+Grain: satu indikator BI bulanan, negara, sumber, dan tanggal observasi. Saat ini
+berisi posisi BI-Rate akhir bulan dan rata-rata JISDOR harian per bulan untuk
+Indonesia (`IDN`). `observation_date` selalu tanggal pertama bulan.
+
+## `mart_monetary_conditions`
+
+Grain: satu bulan kalender untuk Indonesia. Mart menggabungkan BI-Rate dan
+JISDOR sebagai kolom, lalu menyediakan perubahan BI-Rate dalam poin persentase,
+perubahan JISDOR bulanan, persentase perubahan JISDOR, rata-rata berjalan tiga
+bulan, dan jumlah seri yang tersedia.

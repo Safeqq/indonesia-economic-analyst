@@ -1,4 +1,4 @@
-.PHONY: setup database schema check lint test test-integration pipeline pipeline-bps verify-bps marts quality api
+.PHONY: setup database schema check lint test test-integration pipeline pipeline-bps pipeline-bi verify-bps verify-bi marts quality api
 
 PYTHON := .venv/bin/python
 
@@ -29,8 +29,14 @@ pipeline:
 pipeline-bps:
 	$(PYTHON) -m pipelines.jobs.run_bps_pipeline
 
+pipeline-bi:
+	$(PYTHON) -m pipelines.jobs.run_bank_indonesia_pipeline
+
 verify-bps:
 	$(PYTHON) scripts/verify_bps.py
+
+verify-bi:
+	$(PYTHON) scripts/verify_bank_indonesia.py
 
 marts:
 	$(PYTHON) scripts/build_marts.py

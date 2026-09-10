@@ -1,0 +1,45 @@
+source:
+  code: bank_indonesia
+  name: Bank Indonesia
+  base_url: https://www.bi.go.id/id/statistik/default.aspx
+  default_start_date: 2016-08-01
+
+indicators:
+  bi_rate:
+    code: BI.POLICY_RATE.MONTHLY
+    name: BI-Rate (posisi akhir bulan)
+    unit: percent
+    frequency: monthly
+    page_url: https://www.bi.go.id/id/statistik/indikator/bi-rate.aspx
+    format: xlsx
+    sheet_names:
+      - BI-7Day-RR
+      - BI-Rate
+    columns:
+      date:
+        - Tanggal
+        - Periode
+      value:
+        - BI-7Day-RR
+        - BI-Rate
+    aggregation: keputusan terakhir yang berlaku pada akhir bulan kalender
+
+  jisdor:
+    code: BI.JISDOR.USD_IDR.MONTHLY_AVG
+    name: JISDOR USD/IDR (rata-rata bulanan)
+    unit: IDR per USD
+    frequency: monthly
+    endpoint_url: https://www.bi.go.id/biwebservice/wskursbi.asmx/getSubKursJisdor3
+    information_url: https://www.bi.go.id/id/statistik/informasi-kurs/jisdor/default.aspx
+    format: xml
+    currency: USD
+    fields:
+      record: Table
+      id: id_subkursasing
+      link: lnk_subkursasing
+      denomination: nil_subkursasing
+      value_buy: beli_subkursasing
+      value_sell: jual_subkursasing
+      date: tgl_subkursasing
+      currency: mts_subkursasing
+    aggregation: rata-rata aritmetika nilai JISDOR harian yang dipublikasikan

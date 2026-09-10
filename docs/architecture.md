@@ -45,5 +45,23 @@ Hash metadata menjaga versi nama, unit, definisi, dan catatan. Jika struktur key
 `datacontent`, daftar domain, atau metadata wajib berubah, pipeline berhenti dengan
 pesan schema drift sebelum fakta dimuat.
 
+Alur Bank Indonesia aktif tanpa API key:
+
+```text
+Form unduhan XLSX BI-Rate + web-service XML JISDOR
+    ↓ downloader terpisah dengan timeout/retry
+Snapshot byte-for-byte + manifest SHA-256 di data/raw/bank_indonesia
+    ↓ parser OpenXML/XML + validasi schema drift
+Posisi BI-Rate akhir bulan + rata-rata JISDOR bulanan
+    ↓ validasi rentang, periode lengkap, dan coverage dua seri
+fact_economic_indicator
+    ↓
+stg_bank_indonesia → mart_monetary_conditions → quality checks BI
+```
+
+Transform hanya memuat bulan kalender lengkap. Kedua seri memakai tanggal pertama
+bulan sehingga dapat di-join langsung, sedangkan `observation_year` mendukung
+penggabungan dengan indikator tahunan.
+
 Analytics Python, endpoint data FastAPI, dan dashboard belum menjadi bagian alur
 aktif. Komponen tersebut dibangun pada fase berikutnya setelah mart stabil.

@@ -30,6 +30,15 @@ Quality tests: `check_stg_bps_grain.sql`,
 `check_bps_missing_mandatory_fields.sql`, `check_bps_region_codes.sql`, dan
 `check_bps_metadata_history.sql`.
 
+## `stg_bank_indonesia`
+
+Grain: satu indikator BI, Indonesia, dan awal bulan. View ini menyajikan dua seri
+bulanan dari sumber resmi BI dengan natural key dan metadata dimensinya.
+
+Quality tests: `check_stg_bank_indonesia_grain.sql`,
+`check_bi_missing_mandatory_fields.sql`, `check_bi_value_ranges.sql`, dan
+`check_bi_monthly_coverage.sql`.
+
 ## `mart_national_overview`
 
 Grain: satu baris per tahun untuk Indonesia (`IDN`).
@@ -100,6 +109,25 @@ Grain: satu seri BPS, provinsi, dan tanggal observasi.
 
 Quality test: `check_mart_regional_analysis_grain.sql`.
 
+## `mart_monetary_conditions`
+
+Grain: satu bulan kalender untuk Indonesia. Mart mem-pivot dua indikator BI agar
+analisis suku bunga dan nilai tukar dapat dilakukan pada periode yang sama.
+
+| Kolom | Arti |
+|---|---|
+| `bi_rate_percent` | BI-Rate yang berlaku pada akhir bulan |
+| `bi_rate_change_pp` | Perubahan dari bulan sebelumnya dalam poin persentase |
+| `jisdor_idr_per_usd` | Rata-rata JISDOR harian yang tersedia dalam bulan |
+| `jisdor_mom_change` | Selisih JISDOR dari bulan sebelumnya |
+| `jisdor_mom_percent_change` | Persentase perubahan JISDOR bulanan |
+| `jisdor_rolling_3_month_average` | Rata-rata berjalan hingga tiga bulan |
+| `indicator_coverage` | Jumlah indikator BI yang tersedia, targetnya dua |
+
+`observation_year` dapat dipakai untuk menggabungkan hasil bulanan ini dengan
+indikator tahunan yang sesuai. Quality test:
+`check_mart_monetary_conditions_grain.sql`.
+
 ## Quality queries
 
 Pemeriksaan blocking:
@@ -113,6 +141,7 @@ Laporan informasional:
 
 - waktu ingestion terakhir dan periode observasi terbaru per sumber;
 - gap di tengah time series tahunan menggunakan `LEAD`.
+- gap di tengah seri BI bulanan menggunakan `LEAD`.
 
 Pemeriksaan missing period hanya mendeteksi gap di antara dua observasi yang
 tersedia. Ia tidak menganggap periode terbaru yang belum dirilis sebagai error.

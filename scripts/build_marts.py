@@ -15,10 +15,12 @@ from pipelines.utils.database import get_engine  # noqa: E402
 MART_SQL_FILES = (
     PROJECT_ROOT / "sql" / "staging" / "stg_world_bank.sql",
     PROJECT_ROOT / "sql" / "staging" / "stg_bps.sql",
+    PROJECT_ROOT / "sql" / "staging" / "stg_bank_indonesia.sql",
     PROJECT_ROOT / "sql" / "marts" / "mart_national_overview.sql",
     PROJECT_ROOT / "sql" / "marts" / "mart_indicator_trends.sql",
     PROJECT_ROOT / "sql" / "marts" / "mart_asean_comparison.sql",
     PROJECT_ROOT / "sql" / "marts" / "mart_regional_analysis.sql",
+    PROJECT_ROOT / "sql" / "marts" / "mart_monetary_conditions.sql",
 )
 
 

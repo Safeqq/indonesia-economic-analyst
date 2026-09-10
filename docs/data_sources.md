@@ -77,9 +77,63 @@ versi baru, sementara metadata lama tetap tersedia untuk audit.
 
 ## Bank Indonesia
 
-- Status: tabel resmi belum dipilih.
+- Status: aktif.
 - Portal statistik: <https://www.bi.go.id/id/statistik/default.aspx>.
+- Autentikasi: tidak memerlukan API key.
+- Tanggal verifikasi sumber dan format: 10 September 2026.
 
-URL unduhan, format, sheet, satuan, frekuensi, lisensi, dan aturan revisi harus
-didokumentasikan sebelum parser dibuat. Pipeline produksi belum mengambil data
-Bank Indonesia.
+### BI-Rate
+
+| Properti | Nilai |
+|---|---|
+| Halaman resmi | <https://www.bi.go.id/id/statistik/indikator/bi-rate.aspx> |
+| Metode unduh | HTTP POST pada tombol `Unduh` setelah mengambil state form halaman |
+| Format/file | XLSX, nama respons `BI-7Day-RR.xlsx` |
+| Sheet diterima | `BI-7Day-RR`; alias eksplisit `BI-Rate` |
+| Kolom tanggal | `Tanggal`; alias eksplisit `Periode` |
+| Kolom nilai | `BI-7Day-RR`; alias eksplisit `BI-Rate` |
+| Satuan sumber | persen |
+| Frekuensi sumber | tanggal keputusan kebijakan |
+| Seri yang dimuat | posisi BI-Rate yang berlaku pada akhir bulan |
+
+BI 7-Day Reverse Repo Rate mulai dipakai sebagai suku bunga kebijakan pada
+19 Agustus 2016. Sejak 21 Desember 2023, Bank Indonesia memakai nama BI-Rate
+tanpa mengubah makna, tujuan, atau operasionalisasi instrumennya. Karena itu,
+periode produksi default dimulai Agustus 2016 dan dua nama tersebut diperlakukan
+sebagai satu seri kebijakan yang berkesinambungan. Referensi resmi:
+<https://www.bi.go.id/id/fungsi-utama/moneter/bi-rate/default.aspx>.
+
+Untuk setiap bulan, transform memilih keputusan terakhir dengan tanggal efektif
+pada atau sebelum akhir bulan. Nilai disimpan pada tanggal pertama bulan dengan
+kode `BI.POLICY_RATE.MONTHLY`, frekuensi `monthly`, dan unit `percent`.
+
+### JISDOR USD/IDR
+
+| Properti | Nilai |
+|---|---|
+| Halaman resmi | <https://www.bi.go.id/id/statistik/informasi-kurs/jisdor/default.aspx> |
+| Web-service resmi | <https://www.bi.go.id/biwebservice/wskursbi.asmx/getSubKursJisdor3> |
+| Parameter | `mts=USD`, `startDate=YYYY-MM-DD`, `endDate=YYYY-MM-DD` |
+| Format | XML `DataSet` |
+| Tabel/record | `Table` di dalam `NewDataSet` |
+| Kolom tanggal | `tgl_subkursasing` |
+| Kolom nilai | `beli_subkursasing` dan `jual_subkursasing`; keduanya wajib sama |
+| Kolom mata uang | `mts_subkursasing`, wajib `USD` |
+| Denominasi | `nil_subkursasing`, wajib `1` |
+| Satuan sumber | rupiah per 1 USD |
+| Frekuensi sumber | harian pada hari kerja |
+| Seri yang dimuat | rata-rata aritmetika nilai harian per bulan |
+
+JISDOR adalah harga spot USD/IDR yang dihitung BI dari transaksi valuta asing
+antarbank. BI menyatakan data diterbitkan pada setiap hari kerja. Nilai bulanan
+disimpan pada tanggal pertama bulan dengan kode
+`BI.JISDOR.USD_IDR.MONTHLY_AVG`, frekuensi `monthly`, dan unit `IDR per USD`.
+Transform tidak mengisi hari libur dan tidak memasukkan bulan berjalan yang
+belum lengkap.
+
+Setiap run menyimpan byte workbook XLSX dan XML persis seperti respons sumber.
+Manifest JSON mencatat URL, metode, parameter, content type, ukuran, nama file,
+dan checksum SHA-256. Parser menerima nama sheet/kolom dan field XML yang
+tercantum di `config/bank_indonesia.yml`. Perubahan di luar alias itu menghasilkan
+error schema drift sebelum fakta dimuat. Run ulang melakukan upsert pada natural
+key, sehingga revisi BI mengganti nilai lama tanpa menambah duplikat.
