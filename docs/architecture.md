@@ -29,5 +29,21 @@ View dibangun ulang secara idempotent melalui `make marts`. `make quality`
 menjalankan pemeriksaan natural key, mandatory field, rentang nilai, status
 pipeline, freshness, dan periode yang hilang.
 
+Alur BPS memakai model penyimpanan yang sama:
+
+```text
+BPS Web API + BPS_API_KEY
+    ↓ domain provinsi + inventaris periode paginated + tabel dinamis
+Snapshot JSON bertanggal di data/raw/bps (tanpa token)
+    ↓ rekonsiliasi 38 kode wilayah + pemisahan seri turunan + validasi coverage
+fact_economic_indicator + dim_indicator_metadata_history
+    ↓
+stg_bps → mart_regional_analysis → quality checks regional
+```
+
+Hash metadata menjaga versi nama, unit, definisi, dan catatan. Jika struktur key
+`datacontent`, daftar domain, atau metadata wajib berubah, pipeline berhenti dengan
+pesan schema drift sebelum fakta dimuat.
+
 Analytics Python, endpoint data FastAPI, dan dashboard belum menjadi bagian alur
 aktif. Komponen tersebut dibangun pada fase berikutnya setelah mart stabil.

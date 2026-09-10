@@ -35,6 +35,9 @@ Grain: satu baris per indikator. Menyimpan nama, satuan, dan frekuensi.
 Grain: satu baris per wilayah resmi. Data World Bank saat ini memakai level
 `country`. `region_code` bersifat unik.
 
+Data BPS memakai kode domain provinsi empat digit, `region_level = province`, dan
+`parent_region_code = IDN`. Daftar kode dikonfirmasi ulang melalui API setiap run.
+
 ## `dim_date`
 
 Grain: satu baris per tanggal observasi. `date_id` memakai format integer
@@ -58,6 +61,20 @@ Setiap file `data/raw/world_bank/world_bank_<country>_<timestamp>.json` berisi
 kode dan URL sumber, waktu retrieval UTC, negara, daftar indikator, jumlah record,
 parameter request, serta payload `[metadata, records]` persis dari setiap request.
 
+## Snapshot mentah BPS
+
+Setiap file `data/raw/bps/bps_<timestamp>.json` berisi respons domain provinsi,
+seluruh halaman inventaris periode, dan payload tabel dinamis persis dari BPS.
+URL serta parameter publik dicatat, sedangkan `BPS_API_KEY` tidak disimpan.
+
+## `dim_indicator_metadata_history`
+
+Grain: satu versi metadata untuk satu indikator dan sumber. Hash SHA-256 meliputi
+nama, unit, definisi, catatan, ID variabel, ID turunan variabel, dan ID turunan
+periode. `period_start`/`period_end` menunjukkan rentang observasi yang memakai
+versi tersebut; `first_observed_at`/`last_observed_at` menunjukkan kapan pipeline
+melihatnya.
+
 ## `stg_world_bank`
 
 Grain: satu indikator, negara, sumber, dan tanggal observasi. View menyatukan
@@ -78,3 +95,14 @@ sesudah, rolling average tiga periode, serta perubahan year-over-year.
 Grain: satu indikator, anggota ASEAN saat ini, dan tanggal. Menyediakan rata-rata,
 selisih dari rata-rata, coverage negara, rank, percentile, dan status keanggotaan
 pada tanggal observasi. Definisi lengkap tersedia di `docs/marts.md`.
+
+## `stg_bps`
+
+Grain: satu seri BPS, provinsi, sumber, dan tanggal observasi. Kode seri memuat ID
+`var`, `turvar`, serta `turtahun` resmi agar kategori tidak tercampur.
+
+## `mart_regional_analysis`
+
+Grain: satu seri BPS, provinsi, dan tanggal. Menyediakan perubahan tahunan,
+rata-rata provinsi yang tersedia, selisih dari rata-rata, coverage, rank, dan
+percentile.

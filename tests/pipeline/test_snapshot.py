@@ -17,17 +17,13 @@ def test_snapshot_preserves_source_response(tmp_path):
     extraction = WorldBankExtraction(
         country="IDN",
         indicator="SP.POP.TOTL",
-        source_url=(
-            "https://api.worldbank.org/v2/country/IDN/indicator/SP.POP.TOTL"
-        ),
+        source_url=("https://api.worldbank.org/v2/country/IDN/indicator/SP.POP.TOTL"),
         parameters={"format": "json", "date": "2023:2023"},
         payload=payload,
         records=payload[1],
     )
 
-    path = save_snapshot(
-        [extraction], datetime(2026, 1, 1, tzinfo=UTC), tmp_path
-    )
+    path = save_snapshot([extraction], datetime(2026, 1, 1, tzinfo=UTC), tmp_path)
     snapshot = json.loads(path.read_text(encoding="utf-8"))
 
     assert snapshot["record_count"] == 1

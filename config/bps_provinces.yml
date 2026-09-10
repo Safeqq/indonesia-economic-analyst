@@ -1,0 +1,48 @@
+metadata:
+  parent_region_code: IDN
+  code_system: Domain provinsi Web API BPS
+  source_url: https://webapi.bps.go.id/v1/api/domain
+  reference_url: https://www.bps.go.id
+  documented_at: "2026-09-10"
+  policy: Kode harus direkonsiliasi dengan endpoint domain/type/prov setiap run.
+
+provinces:
+  - {code: "1100", name: Aceh}
+  - {code: "1200", name: Sumatera Utara}
+  - {code: "1300", name: Sumatera Barat}
+  - {code: "1400", name: Riau}
+  - {code: "1500", name: Jambi}
+  - {code: "1600", name: Sumatera Selatan}
+  - {code: "1700", name: Bengkulu}
+  - {code: "1800", name: Lampung}
+  - {code: "1900", name: Kepulauan Bangka Belitung}
+  - {code: "2100", name: Kepulauan Riau}
+  - {code: "3100", name: DKI Jakarta}
+  - {code: "3200", name: Jawa Barat}
+  - {code: "3300", name: Jawa Tengah}
+  - {code: "3400", name: DI Yogyakarta}
+  - {code: "3500", name: Jawa Timur}
+  - {code: "3600", name: Banten}
+  - {code: "5100", name: Bali}
+  - {code: "5200", name: Nusa Tenggara Barat}
+  - {code: "5300", name: Nusa Tenggara Timur}
+  - {code: "6100", name: Kalimantan Barat}
+  - {code: "6200", name: Kalimantan Tengah}
+  - {code: "6300", name: Kalimantan Selatan}
+  - {code: "6400", name: Kalimantan Timur}
+  - {code: "6500", name: Kalimantan Utara}
+  - {code: "7100", name: Sulawesi Utara}
+  - {code: "7200", name: Sulawesi Tengah}
+  - {code: "7300", name: Sulawesi Selatan}
+  - {code: "7400", name: Sulawesi Tenggara}
+  - {code: "7500", name: Gorontalo}
+  - {code: "7600", name: Sulawesi Barat}
+  - {code: "8100", name: Maluku}
+  - {code: "8200", name: Maluku Utara}
+  - {code: "9100", name: Papua Barat}
+  - {code: "9200", name: Papua Barat Daya}
+  - {code: "9400", name: Papua}
+  - {code: "9500", name: Papua Selatan}
+  - {code: "9600", name: Papua Tengah}
+  - {code: "9700", name: Papua Pegunungan}
+

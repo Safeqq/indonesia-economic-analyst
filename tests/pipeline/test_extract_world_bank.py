@@ -23,9 +23,7 @@ def test_valid_api_response_can_be_extracted(monkeypatch):
 
     monkeypatch.setattr(world_bank, "get_json", fake_get_json)
 
-    result = world_bank.extract_indicator(
-        "IDN", "NY.GDP.MKTP.KD.ZG", 2020, 2023
-    )
+    result = world_bank.extract_indicator("IDN", "NY.GDP.MKTP.KD.ZG", 2020, 2023)
 
     assert result.payload is payload
     assert result.records == payload[1]

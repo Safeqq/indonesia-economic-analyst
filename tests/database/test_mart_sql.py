@@ -8,9 +8,11 @@ from scripts.check_data_quality import (
 def test_all_required_mart_files_are_registered():
     assert {path.name for path in MART_SQL_FILES} == {
         "stg_world_bank.sql",
+        "stg_bps.sql",
         "mart_national_overview.sql",
         "mart_indicator_trends.sql",
         "mart_asean_comparison.sql",
+        "mart_regional_analysis.sql",
     }
     for path in MART_SQL_FILES:
         sql = path.read_text(encoding="utf-8")
@@ -51,7 +53,14 @@ def test_all_required_quality_checks_are_registered():
         "check_latest_pipeline_failure.sql",
         "check_missing_periods.sql",
         "check_stg_world_bank_grain.sql",
+        "check_stg_bps_grain.sql",
+        "check_bps_missing_mandatory_fields.sql",
+        "check_bps_region_codes.sql",
+        "check_bps_metadata_history.sql",
+        "check_bps_value_ranges.sql",
         "check_mart_national_overview_grain.sql",
         "check_mart_indicator_trends_grain.sql",
         "check_mart_asean_comparison_grain.sql",
+        "check_mart_regional_analysis_grain.sql",
+        "check_bps_missing_periods.sql",
     } == registered

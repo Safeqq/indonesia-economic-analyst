@@ -1,0 +1,20 @@
+source:
+  code: bps
+  name: Badan Pusat Statistik
+  base_url: https://webapi.bps.go.id/v1/api
+  domain: "0000"
+  language: ind
+
+# Kedua ID tercantum pada katalog SDDS di dokumentasi resmi Web API BPS.
+# Nama, satuan, definisi, turunan variabel, dan turunan periode tetap diambil
+# dari respons API pada setiap run; nilai di bawah hanya menjadi identitas seri.
+indicators:
+  - variable_id: 1975
+    code_prefix: BPS.1975
+    name: Jumlah Penduduk Pertengahan Tahun
+    frequency: annual
+  - variable_id: 543
+    code_prefix: BPS.543
+    name: Tingkat Pengangguran Terbuka Menurut Provinsi
+    frequency: annual
+

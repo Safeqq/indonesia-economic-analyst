@@ -34,7 +34,8 @@ Buka `.env`, lalu ganti setidaknya:
 MYSQL_PASSWORD=password_lokal_yang_kuat
 ```
 
-`BPS_API_KEY` boleh dibiarkan kosong sampai connector BPS mulai dikerjakan.
+Isi `BPS_API_KEY` dengan token dari portal developer BPS sebelum menjalankan
+`make pipeline-bps`. Setup World Bank tetap dapat digunakan jika field ini kosong.
 
 ## 4. Buat database dan user aplikasi
 
@@ -44,6 +45,8 @@ MYSQL_PASSWORD=password_lokal_yang_kuat
 
 Script memakai autentikasi socket melalui `sudo mariadb`, membuat database,
 user aplikasi lokal, dan tabel awal. Script tidak menghapus database yang ada.
+Setelah menarik perubahan schema baru, jalankan `make schema`; perintah ini hanya
+menjalankan `CREATE ... IF NOT EXISTS` melalui user aplikasi.
 
 ## 5. Verifikasi
 
@@ -61,7 +64,9 @@ adalah mengerjakan pipeline World Bank sebagai sumber data nyata pertama.
 ```bash
 source .venv/bin/activate.fish
 make check
+make schema
 make pipeline
+make pipeline-bps
 make marts
 make quality
 make api

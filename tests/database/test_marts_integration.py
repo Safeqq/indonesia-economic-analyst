@@ -22,9 +22,11 @@ pytestmark = [
 
 EXPECTED_VIEWS = {
     "stg_world_bank",
+    "stg_bps",
     "mart_national_overview",
     "mart_indicator_trends",
     "mart_asean_comparison",
+    "mart_regional_analysis",
 }
 
 
@@ -41,9 +43,11 @@ def test_marts_build_and_have_expected_grain(engine):
 
     grain_checks = (
         "check_stg_world_bank_grain.sql",
+        "check_stg_bps_grain.sql",
         "check_mart_national_overview_grain.sql",
         "check_mart_indicator_trends_grain.sql",
         "check_mart_asean_comparison_grain.sql",
+        "check_mart_regional_analysis_grain.sql",
     )
     quality_directory = Path(__file__).resolve().parents[2] / "sql" / "quality"
     with engine.connect() as connection:

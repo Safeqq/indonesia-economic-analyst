@@ -21,6 +21,15 @@ dan tanggal. Kolom bisnis yang dipakai mart tersedia tanpa ID surrogate.
 
 Quality test: `check_stg_world_bank_grain.sql`.
 
+## `stg_bps`
+
+Grain: satu seri BPS, provinsi, sumber, dan tanggal observasi. View menyatukan
+fakta regional dengan kode domain empat digit dan parent `IDN`.
+
+Quality tests: `check_stg_bps_grain.sql`,
+`check_bps_missing_mandatory_fields.sql`, `check_bps_region_codes.sql`, dan
+`check_bps_metadata_history.sql`.
+
 ## `mart_national_overview`
 
 Grain: satu baris per tahun untuk Indonesia (`IDN`).
@@ -74,6 +83,23 @@ atau pengangguran yang lebih tinggi tetap mendapat `value_rank_desc` lebih kecil
 
 Quality test: `check_mart_asean_comparison_grain.sql`.
 
+## `mart_regional_analysis`
+
+Grain: satu seri BPS, provinsi, dan tanggal observasi.
+
+| Kolom | Arti |
+|---|---|
+| `previous_value` | Nilai provinsi pada observasi seri sebelumnya |
+| `yoy_absolute_change` | Selisih jika observasi sebelumnya tepat satu tahun |
+| `yoy_percent_change` | Perubahan tahunan; gap/pembagi nol menjadi `NULL` |
+| `province_average` | Rata-rata provinsi yang memiliki nilai pada periode itu |
+| `difference_from_province_average` | Nilai provinsi dikurangi rata-rata |
+| `province_coverage` | Jumlah provinsi dengan observasi tersedia |
+| `value_rank_desc` | Rank nilai terbesar pada seri/periode |
+| `value_percentile` | Posisi relatif 0–1 dari rendah menuju tinggi |
+
+Quality test: `check_mart_regional_analysis_grain.sql`.
+
 ## Quality queries
 
 Pemeriksaan blocking:
@@ -91,5 +117,5 @@ Laporan informasional:
 Pemeriksaan missing period hanya mendeteksi gap di antara dua observasi yang
 tersedia. Ia tidak menganggap periode terbaru yang belum dirilis sebagai error.
 
-`mart_regional_analysis` belum dibuat karena data regional BPS belum tersedia,
-sesuai dependensi Fase 2 pada roadmap.
+View regional dapat dibuat sebelum fakta BPS dimuat dan akan tetap kosong. Nilai
+produksi baru muncul setelah `make pipeline-bps` berhasil dengan token BPS.

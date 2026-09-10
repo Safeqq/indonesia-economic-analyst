@@ -50,6 +50,7 @@ def check_database() -> None:
         "dim_date",
         "fact_economic_indicator",
         "fact_pipeline_run",
+        "dim_indicator_metadata_history",
     }
     existing_tables = set(inspect(engine).get_table_names())
     missing_tables = required_tables - existing_tables

@@ -64,6 +64,27 @@ UPSERT_FACT = text(
         ingested_at = VALUES(ingested_at)
     """
 )
+UPSERT_INDICATOR_METADATA = text(
+    """
+    INSERT INTO dim_indicator_metadata_history
+        (indicator_id, source_id, source_variable_id, derived_variable_id,
+         derived_period_id, indicator_name, unit, definition_text, notes,
+         metadata_hash, period_start, period_end, first_observed_at,
+         last_observed_at)
+    VALUES
+        (:indicator_id, :source_id, :source_variable_id, :derived_variable_id,
+         :derived_period_id, :indicator_name, :unit, :definition_text, :notes,
+         :metadata_hash, :period_start, :period_end, :observed_at, :observed_at)
+    ON DUPLICATE KEY UPDATE
+        indicator_name = VALUES(indicator_name),
+        unit = VALUES(unit),
+        definition_text = VALUES(definition_text),
+        notes = VALUES(notes),
+        period_start = LEAST(period_start, VALUES(period_start)),
+        period_end = GREATEST(period_end, VALUES(period_end)),
+        last_observed_at = GREATEST(last_observed_at, VALUES(last_observed_at))
+    """
+)
 
 
 def start_pipeline_run(
@@ -116,8 +137,7 @@ def _select_id_map(
     values: list[str],
 ) -> dict[str, int]:
     statement = text(
-        f"SELECT {id_column}, {code_column} FROM {table} "
-        f"WHERE {code_column} IN :values"
+        f"SELECT {id_column}, {code_column} FROM {table} WHERE {code_column} IN :values"
     ).bindparams(bindparam("values", expanding=True))
     result = connection.execute(statement, {"values": values})
     return {row[1]: int(row[0]) for row in result}
@@ -131,9 +151,7 @@ def _to_utc_naive(value: object) -> datetime:
 
 
 def _upsert_dimensions(connection: Connection, frame: pd.DataFrame) -> None:
-    source_rows = frame[
-        ["source_code", "source_name", "source_url"]
-    ].drop_duplicates()
+    source_rows = frame[["source_code", "source_name", "source_url"]].drop_duplicates()
     connection.execute(UPSERT_SOURCE, source_rows.to_dict("records"))
 
     indicator_rows = frame[
@@ -141,13 +159,14 @@ def _upsert_dimensions(connection: Connection, frame: pd.DataFrame) -> None:
     ].drop_duplicates()
     connection.execute(UPSERT_INDICATOR, indicator_rows.to_dict("records"))
 
-    region_rows = frame[
-        ["region_code", "region_name", "region_level"]
-    ].drop_duplicates()
-    regions = [
-        {**row, "parent_region_code": None}
-        for row in region_rows.to_dict("records")
-    ]
+    region_columns = ["region_code", "region_name", "region_level"]
+    if "parent_region_code" in frame.columns:
+        region_columns.append("parent_region_code")
+    region_rows = frame[region_columns].drop_duplicates()
+    regions = []
+    for row in region_rows.to_dict("records"):
+        row.setdefault("parent_region_code", None)
+        regions.append(row)
     connection.execute(UPSERT_REGION, regions)
 
     observation_dates = sorted(
@@ -200,12 +219,54 @@ def _fact_rows(connection: Connection, frame: pd.DataFrame) -> list[dict[str, ob
     return rows
 
 
-def load_world_bank_connection(
-    frame: pd.DataFrame, run_id: int, connection: Connection
+def _upsert_indicator_metadata(connection: Connection, metadata: pd.DataFrame) -> None:
+    if metadata.empty:
+        return
+    indicator_codes = metadata["indicator_code"].drop_duplicates().tolist()
+    source_codes = metadata["source_code"].drop_duplicates().tolist()
+    indicator_ids = _select_id_map(
+        connection,
+        "dim_indicator",
+        "indicator_id",
+        "indicator_code",
+        indicator_codes,
+    )
+    source_ids = _select_id_map(
+        connection, "dim_source", "source_id", "source_code", source_codes
+    )
+    rows: list[dict[str, object]] = []
+    for row in metadata.itertuples(index=False):
+        rows.append(
+            {
+                "indicator_id": indicator_ids[row.indicator_code],
+                "source_id": source_ids[row.source_code],
+                "source_variable_id": row.source_variable_id,
+                "derived_variable_id": row.derived_variable_id,
+                "derived_period_id": row.derived_period_id,
+                "indicator_name": row.indicator_name,
+                "unit": row.unit,
+                "definition_text": row.definition_text,
+                "notes": row.notes,
+                "metadata_hash": row.metadata_hash,
+                "period_start": pd.Timestamp(row.period_start).date(),
+                "period_end": pd.Timestamp(row.period_end).date(),
+                "observed_at": _to_utc_naive(row.observed_at),
+            }
+        )
+    connection.execute(UPSERT_INDICATOR_METADATA, rows)
+
+
+def load_economic_data_connection(
+    frame: pd.DataFrame,
+    run_id: int,
+    connection: Connection,
+    metadata: pd.DataFrame | None = None,
 ) -> int:
     rows_loaded = len(frame)
     _upsert_dimensions(connection, frame)
     connection.execute(UPSERT_FACT, _fact_rows(connection, frame))
+    if metadata is not None:
+        _upsert_indicator_metadata(connection, metadata)
     result = connection.execute(
         text(
             """
@@ -228,6 +289,28 @@ def load_world_bank_connection(
     return rows_loaded
 
 
+def load_world_bank_connection(
+    frame: pd.DataFrame, run_id: int, connection: Connection
+) -> int:
+    return load_economic_data_connection(frame, run_id, connection)
+
+
+def load_bps_connection(
+    frame: pd.DataFrame,
+    metadata: pd.DataFrame,
+    run_id: int,
+    connection: Connection,
+) -> int:
+    return load_economic_data_connection(frame, run_id, connection, metadata)
+
+
 def load_world_bank(frame: pd.DataFrame, run_id: int, engine: Engine) -> int:
     with engine.begin() as connection:
         return load_world_bank_connection(frame, run_id, connection)
+
+
+def load_bps(
+    frame: pd.DataFrame, metadata: pd.DataFrame, run_id: int, engine: Engine
+) -> int:
+    with engine.begin() as connection:
+        return load_bps_connection(frame, metadata, run_id, connection)

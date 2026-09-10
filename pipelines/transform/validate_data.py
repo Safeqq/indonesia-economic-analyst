@@ -71,9 +71,10 @@ def validate(frame: pd.DataFrame) -> None:
         raise ValueError("Observasi annual harus menggunakan tanggal 1 Januari")
 
     numeric_values = pd.to_numeric(frame["value"], errors="coerce")
-    if numeric_values.isnull().any() or not np.isfinite(
-        numeric_values.to_numpy(dtype=float)
-    ).all():
+    if (
+        numeric_values.isnull().any()
+        or not np.isfinite(numeric_values.to_numpy(dtype=float)).all()
+    ):
         raise ValueError("Dataset memiliki value non-numerik atau tidak finite")
     if frame.duplicated(UNIQUE_COLUMNS).any():
         raise ValueError("Dataset memiliki observasi duplikat")
@@ -83,8 +84,15 @@ def validate(frame: pd.DataFrame) -> None:
     ].drop_duplicates()
     if indicator_metadata["indicator_code"].duplicated().any():
         raise ValueError("Metadata indikator tidak konsisten")
-    region_metadata = frame[
-        ["region_code", "region_name", "region_level"]
-    ].drop_duplicates()
+    region_columns = ["region_code", "region_name", "region_level"]
+    if "parent_region_code" in frame.columns:
+        province_rows = frame["region_level"].eq("province")
+        missing_parent = frame["parent_region_code"].isnull() | frame[
+            "parent_region_code"
+        ].astype(str).str.strip().eq("")
+        if (province_rows & missing_parent).any():
+            raise ValueError("Wilayah provinsi harus memiliki parent_region_code")
+        region_columns.append("parent_region_code")
+    region_metadata = frame[region_columns].drop_duplicates()
     if region_metadata["region_code"].duplicated().any():
         raise ValueError("Metadata wilayah tidak konsisten")
