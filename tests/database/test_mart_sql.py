@@ -69,6 +69,9 @@ def test_all_required_quality_checks_are_registered():
         "check_mart_asean_comparison_grain.sql",
         "check_mart_regional_analysis_grain.sql",
         "check_mart_monetary_conditions_grain.sql",
+        "check_forecast_integrity.sql",
+        "check_anomaly_integrity.sql",
         "check_bps_missing_periods.sql",
         "check_bi_missing_periods.sql",
+        "check_latest_forecast_run.sql",
     } == registered

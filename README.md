@@ -41,6 +41,8 @@ make schema     # menerapkan penambahan schema secara idempotent
 make marts      # membuat ulang staging dan analytical views
 make quality    # menjalankan pemeriksaan kualitas dan freshness
 make eda        # menjalankan lima notebook dan menyimpan salinan ber-output
+make advanced-analytics  # mengevaluasi model dan membuat forecast jika gate lulus
+make verify-analytics  # memeriksa holdout, quality gate, dan hasil forecast
 make api        # menjalankan FastAPI pada http://127.0.0.1:8000
 make test       # menjalankan unit test
 make test-integration  # menguji idempotensi dengan tabel sementara MariaDB
@@ -109,6 +111,8 @@ Definisi grain, metrik, dan interpretasi mart tersedia di `docs/marts.md`.
 Panduan notebook, metode analisis, dan lokasi hasil eksekusi tersedia di
 `docs/eda.md`. Notebook sumber tetap bersih dari output; `make eda` menulis hasil
 terbaru ke `data/exports/notebooks/` dan grafik PNG ke `data/exports/eda/`.
+Forecasting tervalidasi, quality gate, deteksi anomali, dan tabel hasil dijelaskan
+di `docs/advanced_analytics.md`.
 
 Project tidak menggunakan data dummy. Isi `data/raw` hanya berasal dari sumber
 resmi; data buatan terbatas pada fixture test yang terisolasi.

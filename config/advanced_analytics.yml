@@ -1,0 +1,36 @@
+pipeline_version: phase6-v1
+
+forecast:
+  indicator_code: BI.JISDOR.USD_IDR.MONTHLY_AVG
+  region_code: IDN
+  source_code: bank_indonesia
+  date_column: observation_date
+  value_column: jisdor_idr_per_usd
+  frequency: MS
+  test_periods: 24
+  horizon: 6
+  confidence_level: 0.95
+  baseline_lags:
+    - 1
+    - 12
+  candidate_models:
+    - name: arima_011_drift
+      family: arima
+      order: [0, 1, 1]
+      seasonal_order: [0, 0, 0, 0]
+      trend: t
+    - name: sarima_011_011_12
+      family: sarima
+      order: [0, 1, 1]
+      seasonal_order: [0, 1, 1, 12]
+      trend: n
+  quality_gate:
+    minimum_mae_improvement_percent: 5.0
+    maximum_mape_percent: 5.0
+    minimum_interval_coverage_percent: 70.0
+
+anomaly_detection:
+  method: rolling_mad_first_difference
+  window: 24
+  minimum_history: 12
+  threshold: 3.5

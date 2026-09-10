@@ -40,4 +40,6 @@ mencegah hasil portofolio dibentuk dari imputasi atau data sintetis.
 Setiap insight notebook menyertakan periode, sumber, interpretasi, dan batasan.
 Daftar temuan yang telah diverifikasi disimpan di `docs/insights.md`. Korelasi
 tidak menyatakan kausalitas, kandidat outlier tidak otomatis merupakan error,
-dan baseline historis di notebook kelima belum merupakan forecast produksi.
+dan baseline historis di notebook kelima bukan forecast masa depan. Perbandingan
+ARIMA/SARIMA, quality gate, serta estimasi dengan interval dijelaskan di
+`docs/advanced_analytics.md`.

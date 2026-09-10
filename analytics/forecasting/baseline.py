@@ -39,18 +39,28 @@ def time_series_readiness(
     }
 
 
-def _metrics(actual: pd.Series, prediction: pd.Series) -> dict[str, float]:
-    errors = actual - prediction
-    absolute = errors.abs()
-    nonzero = actual.ne(0)
+def calculate_error_metrics(
+    actual: pd.Series, prediction: pd.Series
+) -> dict[str, float]:
+    if len(actual) != len(prediction) or actual.empty:
+        raise ValueError(
+            "Actual dan prediction harus memiliki panjang sama dan tidak kosong"
+        )
+    actual_values = pd.to_numeric(actual, errors="raise").to_numpy(dtype=float)
+    prediction_values = pd.to_numeric(prediction, errors="raise").to_numpy(dtype=float)
+    if not np.isfinite(actual_values).all() or not np.isfinite(prediction_values).all():
+        raise ValueError("Actual dan prediction harus berisi nilai finite")
+    errors = actual_values - prediction_values
+    absolute = np.abs(errors)
+    nonzero = actual_values != 0
     mape = (
-        float((absolute[nonzero] / actual[nonzero].abs()).mean() * 100)
+        float(np.mean(absolute[nonzero] / np.abs(actual_values[nonzero])) * 100)
         if nonzero.any()
         else np.nan
     )
     return {
-        "mae": float(absolute.mean()),
-        "rmse": float(np.sqrt((errors**2).mean())),
+        "mae": float(np.mean(absolute)),
+        "rmse": float(np.sqrt(np.mean(errors**2))),
         "mape_percent": mape,
     }
 
@@ -85,6 +95,8 @@ def naive_holdout_backtest(
         prediction_lag=prediction_lag,
         train_end=pd.Timestamp(train_end),
         test_start=pd.Timestamp(predictions[date_column].min()),
-        metrics=_metrics(predictions["actual"], predictions["prediction"]),
+        metrics=calculate_error_metrics(
+            predictions["actual"], predictions["prediction"]
+        ),
         predictions=predictions.reset_index(drop=True),
     )

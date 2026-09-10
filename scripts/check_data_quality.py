@@ -34,12 +34,15 @@ BLOCKING_CHECK_FILES = (
     QUALITY_DIRECTORY / "check_mart_asean_comparison_grain.sql",
     QUALITY_DIRECTORY / "check_mart_regional_analysis_grain.sql",
     QUALITY_DIRECTORY / "check_mart_monetary_conditions_grain.sql",
+    QUALITY_DIRECTORY / "check_forecast_integrity.sql",
+    QUALITY_DIRECTORY / "check_anomaly_integrity.sql",
 )
 INFORMATIONAL_CHECK_FILES = (
     QUALITY_DIRECTORY / "check_data_freshness.sql",
     QUALITY_DIRECTORY / "check_missing_periods.sql",
     QUALITY_DIRECTORY / "check_bps_missing_periods.sql",
     QUALITY_DIRECTORY / "check_bi_missing_periods.sql",
+    QUALITY_DIRECTORY / "check_latest_forecast_run.sql",
 )
 
 

@@ -16,6 +16,7 @@ SCHEMA_FILES = (
     PROJECT_ROOT / "database" / "schema" / "02_create_dimensions.sql",
     PROJECT_ROOT / "database" / "schema" / "03_create_facts.sql",
     PROJECT_ROOT / "database" / "schema" / "05_create_metadata_history.sql",
+    PROJECT_ROOT / "database" / "schema" / "06_create_advanced_analytics.sql",
     PROJECT_ROOT / "database" / "schema" / "04_create_indexes.sql",
 )
 

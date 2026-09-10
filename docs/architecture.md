@@ -77,5 +77,24 @@ Insight tervalidasi di docs/insights.md
 
 Loader mempertahankan tanggal dan metadata sumber dari mart. Notebook regional
 tetap dapat dieksekusi saat BPS kosong, tetapi tidak menghasilkan cluster sampai
-coverage minimum tersedia. Endpoint data FastAPI dan dashboard dibangun pada fase
-berikutnya.
+coverage minimum tersedia.
+
+Lapisan advanced analytics memakai mart moneter yang sama:
+
+```text
+mart_monetary_conditions (JISDOR bulanan)
+    ↓ validasi kalender tanpa imputasi
+Baseline naïve + ARIMA/SARIMA dengan holdout berdasarkan waktu
+    ↓ MAE/RMSE/MAPE + cakupan interval + quality gate
+fact_forecast_run
+    ├─ gate lulus → fact_forecast (estimasi + interval 95%)
+    └─ gate gagal → evaluasi dan alasan saja
+    ↓
+Deteksi rolling MAD → fact_anomaly_event (tipe + alasan)
+    ↓
+JSON metadata + PNG di data/exports/advanced_analytics
+```
+
+Fingerprint data dan konfigurasi menjadi natural key run sehingga eksekusi ulang
+tidak membuat duplikasi. Metadata evaluasi menyimpan setiap prediksi holdout dan
+versi library. Endpoint data FastAPI dan dashboard dibangun pada fase berikutnya.

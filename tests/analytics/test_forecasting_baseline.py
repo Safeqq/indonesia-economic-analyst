@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from analytics.forecasting.baseline import (
+    calculate_error_metrics,
     naive_holdout_backtest,
     time_series_readiness,
 )
@@ -63,3 +64,14 @@ def test_mape_ignores_zero_actual_values() -> None:
 
     assert math.isfinite(result.metrics["mape_percent"])
     assert result.metrics["mape_percent"] == pytest.approx(100.0)
+
+
+def test_error_metrics_compare_values_by_position() -> None:
+    actual = pd.Series([10.0, 20.0], index=[100, 101])
+    prediction = pd.Series([8.0, 24.0], index=[1, 2])
+
+    result = calculate_error_metrics(actual, prediction)
+
+    assert result["mae"] == pytest.approx(3.0)
+    assert result["rmse"] == pytest.approx(math.sqrt(10))
+    assert result["mape_percent"] == pytest.approx(20.0)

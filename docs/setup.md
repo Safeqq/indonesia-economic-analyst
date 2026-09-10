@@ -73,5 +73,7 @@ make marts
 make quality
 make verify-bi
 make eda
+make advanced-analytics
+make verify-analytics
 make api
 ```

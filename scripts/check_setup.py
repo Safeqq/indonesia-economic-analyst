@@ -51,12 +51,15 @@ def check_database() -> None:
         "fact_economic_indicator",
         "fact_pipeline_run",
         "dim_indicator_metadata_history",
+        "fact_forecast_run",
+        "fact_forecast",
+        "fact_anomaly_event",
     }
     existing_tables = set(inspect(engine).get_table_names())
     missing_tables = required_tables - existing_tables
     if missing_tables:
         raise RuntimeError(f"Tabel belum tersedia: {sorted(missing_tables)}")
-    print("[OK] Seluruh tabel awal tersedia")
+    print("[OK] Seluruh tabel wajib tersedia")
 
 
 def main() -> None:

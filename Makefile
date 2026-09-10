@@ -1,4 +1,4 @@
-.PHONY: setup database schema check lint test test-integration pipeline pipeline-bps pipeline-bi verify-bps verify-bi marts quality eda api
+.PHONY: setup database schema check lint test test-integration pipeline pipeline-bps pipeline-bi verify-bps verify-bi marts quality eda advanced-analytics verify-analytics api
 
 PYTHON := .venv/bin/python
 
@@ -47,6 +47,12 @@ quality:
 
 eda:
 	MPLCONFIGDIR=data/exports/.matplotlib $(PYTHON) scripts/run_eda_notebooks.py
+
+advanced-analytics:
+	MPLCONFIGDIR=data/exports/.matplotlib $(PYTHON) scripts/run_advanced_analytics.py
+
+verify-analytics:
+	$(PYTHON) scripts/verify_advanced_analytics.py
 
 api:
 	$(PYTHON) -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000

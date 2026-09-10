@@ -126,3 +126,26 @@ Grain: satu bulan kalender untuk Indonesia. Mart menggabungkan BI-Rate dan
 JISDOR sebagai kolom, lalu menyediakan perubahan BI-Rate dalam poin persentase,
 perubahan JISDOR bulanan, persentase perubahan JISDOR, rata-rata berjalan tiga
 bulan, dan jumlah seri yang tersedia.
+
+## `fact_forecast_run`
+
+Grain: satu evaluasi advanced analytics untuk kombinasi fingerprint data,
+konfigurasi, dan versi pipeline. Tabel menyimpan periode train/test, metrik model
+terpilih dan baseline, perbaikan MAE, cakupan interval, threshold dan status
+quality gate, metadata seluruh backtest, serta metadata model final. `run_key`
+bersifat unik sehingga input yang sama tidak menambah run duplikat.
+
+## `fact_forecast`
+
+Grain: satu tanggal estimasi untuk satu `forecast_run_id`. `point_forecast`,
+`lower_bound`, dan `upper_bound` memakai satuan indikator sumber. Baris hanya
+tersedia jika quality gate run lulus; `forecast_date` harus berada setelah
+`data_end`. Semua nilai adalah estimasi model dan bukan observasi resmi.
+
+## `fact_anomaly_event`
+
+Grain: satu klasifikasi anomali, metode, dan tanggal untuk satu run. Jenis event
+adalah `missing_value`, `source_revision`, atau `economic_anomaly`. Tabel menyimpan
+nilai/perubahan bila tersedia, robust score, threshold, metode, dan alasan.
+`economic_anomaly` berarti kandidat statistik untuk ditinjau, bukan bukti error
+data atau penyebab ekonomi tertentu.

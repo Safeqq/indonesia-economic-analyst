@@ -32,8 +32,33 @@ Notebook time series memakai holdout berdasarkan waktu. Naïve lag-1 dan
 seasonal-naïve lag-12 dievaluasi dengan MAE, RMSE, serta MAPE yang mengabaikan
 nilai aktual nol hanya pada penyebut MAPE. Evaluasi bersifat rolling one-step:
 nilai aktual sebelumnya di dalam holdout dapat menjadi input prediksi berikutnya.
-Baseline ini belum menjadi forecast produksi; perbandingan model, confidence
-interval, metadata model, dan threshold publikasi dikerjakan pada Fase 6.
+Baseline notebook menjadi pembanding yang sama untuk advanced analytics.
+
+## Forecasting dan quality gate
+
+Advanced analytics memakai 24 observasi terakhir sebagai holdout kronologis.
+Naïve lag-1 dan seasonal-naïve lag-12 dibandingkan dengan ARIMA(0,1,1) dengan drift
+dan SARIMA(0,1,1)(0,1,1,12). Parameter model dipasang hanya pada bagian training;
+setiap prediksi holdout dibuat sebelum observasi aktual periode itu ditambahkan
+ke state model tanpa refit. Model final baru dipasang pada seluruh seri setelah
+evaluasi selesai.
+
+Model lanjutan dipilih berdasarkan MAE terendah. Forecast masa depan hanya dibuat
+jika model konvergen, memperbaiki MAE minimal 5% dari baseline terbaik, memiliki
+MAPE maksimal 5%, dan interval 95% mencakup minimal 70% observasi holdout. Jika
+gate gagal, alasan dan hasil evaluasi tetap disimpan tetapi tabel forecast tidak
+diisi untuk run tersebut. Forecast yang lulus selalu diberi interval dan label
+estimasi, bukan fakta observasi.
+
+## Deteksi anomali
+
+Deteksi awal memakai robust score dari perubahan antarbulan terhadap median dan
+MAD pada maksimal 24 perubahan sebelumnya. Minimal 12 perubahan historis wajib
+tersedia dan threshold absolutnya 3,5. Missing value dicatat terpisah berdasarkan
+kalender. Revisi sumber hanya dilabeli jika ada konfirmasi eksplisit yang diberikan
+ke detector. Titik lain yang melewati threshold disebut kandidat anomali ekonomi,
+bukan bukti kesalahan data atau penjelasan sebab-akibat. Formula, alasan numerik,
+dan klasifikasi disimpan untuk setiap event.
 
 ## Normalisasi data Bank Indonesia
 

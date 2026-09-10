@@ -49,6 +49,7 @@ SQL
 for schema_file in database/schema/02_create_dimensions.sql \
                    database/schema/03_create_facts.sql \
                    database/schema/05_create_metadata_history.sql \
+                   database/schema/06_create_advanced_analytics.sql \
                    database/schema/04_create_indexes.sql; do
   sudo mariadb "$MYSQL_DATABASE" < "$schema_file"
 done

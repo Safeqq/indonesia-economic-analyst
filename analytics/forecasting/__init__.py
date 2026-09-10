@@ -1,1 +1,1 @@
-"""Utilitas evaluasi time series; model lanjutan ditambahkan pada Fase 6."""
+"""Backtest, quality gate, dan forecasting time series yang dapat diaudit."""
