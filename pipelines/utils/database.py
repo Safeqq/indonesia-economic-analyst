@@ -20,4 +20,12 @@ def get_engine() -> Engine:
         port=port,
         database=database,
     )
-    return create_engine(url)
+    return create_engine(
+        url,
+        pool_pre_ping=True,
+        connect_args={
+            "connect_timeout": 10,
+            "read_timeout": 30,
+            "write_timeout": 30,
+        },
+    )

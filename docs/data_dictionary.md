@@ -57,3 +57,24 @@ diproses; run gagal menyimpan pesan error dan tidak memuat fakta parsial.
 Setiap file `data/raw/world_bank/world_bank_<country>_<timestamp>.json` berisi
 kode dan URL sumber, waktu retrieval UTC, negara, daftar indikator, jumlah record,
 parameter request, serta payload `[metadata, records]` persis dari setiap request.
+
+## `stg_world_bank`
+
+Grain: satu indikator, negara, sumber, dan tanggal observasi. View menyatukan
+natural key, metadata dimensi, nilai, periode, dan waktu ingestion.
+
+## `mart_national_overview`
+
+Grain: satu tahun untuk Indonesia. Lima indikator disajikan sebagai kolom KPI;
+`indicator_coverage` mencatat kelengkapan indikator per tahun.
+
+## `mart_indicator_trends`
+
+Grain: satu indikator, negara, dan tanggal. Menyediakan nilai periode sebelum dan
+sesudah, rolling average tiga periode, serta perubahan year-over-year.
+
+## `mart_asean_comparison`
+
+Grain: satu indikator, anggota ASEAN saat ini, dan tanggal. Menyediakan rata-rata,
+selisih dari rata-rata, coverage negara, rank, percentile, dan status keanggotaan
+pada tanggal observasi. Definisi lengkap tersedia di `docs/marts.md`.

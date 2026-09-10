@@ -32,6 +32,8 @@ Panduan lengkap tersedia di `docs/setup.md`.
 
 ```bash
 make pipeline   # mengambil lima indikator World Bank untuk Indonesia, 2000–2025
+make marts      # membuat ulang staging dan analytical views
+make quality    # menjalankan pemeriksaan kualitas dan freshness
 make api        # menjalankan FastAPI pada http://127.0.0.1:8000
 make test       # menjalankan unit test
 make test-integration  # menguji idempotensi dengan tabel sementara MariaDB
@@ -51,6 +53,20 @@ Opsi `--indicator` dapat diulang. Tanpa opsi tersebut, pipeline mengambil semua
 indikator World Bank dalam `config/indicators.yml`. Setiap run menyimpan respons
 API utuh beserta metadata pengambilan di `data/raw/world_bank/`, kemudian
 melakukan upsert transaksional ke model dimensi dan fakta MariaDB.
+
+Untuk mengisi benchmark 11 negara ASEAN dari Fish:
+
+```fish
+for country in BRN KHM IDN LAO MYS MMR PHL SGP THA TLS VNM
+    .venv/bin/python -m pipelines.jobs.run_pipeline \
+      --country $country --start-year 2000 --end-year 2025
+end
+
+make marts
+make quality
+```
+
+Definisi grain, metrik, dan interpretasi mart tersedia di `docs/marts.md`.
 
 Project tidak menggunakan data dummy. Isi `data/raw` hanya berasal dari sumber
 resmi; data buatan terbatas pada fixture test yang terisolasi.

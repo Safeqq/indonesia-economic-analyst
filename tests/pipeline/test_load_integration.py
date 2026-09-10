@@ -11,10 +11,13 @@ from pipelines.load.load_to_mysql import load_world_bank_connection
 from pipelines.transform.validate_data import validate
 from pipelines.utils.database import get_engine
 
-pytestmark = pytest.mark.skipif(
-    os.getenv("RUN_DB_INTEGRATION") != "1",
-    reason="set RUN_DB_INTEGRATION=1 untuk integration test MariaDB",
-)
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.skipif(
+        os.getenv("RUN_DB_INTEGRATION") != "1",
+        reason="set RUN_DB_INTEGRATION=1 untuk integration test MariaDB",
+    ),
+]
 
 
 def test_second_upsert_does_not_duplicate_fact():

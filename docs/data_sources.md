@@ -29,6 +29,10 @@ key indikator, wilayah, sumber, dan tanggal observasi; nilai revisi menggantikan
 nilai lama tanpa membuat fakta duplikat. `ingested_at` menunjukkan waktu snapshot
 yang terakhir dimuat.
 
+Untuk benchmark ASEAN, cakupan wilayah memakai 11 negara anggota saat ini sesuai
+daftar ASEAN Secretariat: <https://asean.org/member-states/>. Data pembanding
+terakhir diambil pada 10 September 2026 untuk periode 2000–2025.
+
 ## BPS Web API
 
 - Status: connector dasar tersedia, endpoint statistik belum dipilih.

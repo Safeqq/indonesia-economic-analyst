@@ -48,7 +48,7 @@ user aplikasi lokal, dan tabel awal. Script tidak menghapus database yang ada.
 ## 5. Verifikasi
 
 ```bash
-source .venv/bin/activate
+source .venv/bin/activate.fish
 python scripts/check_setup.py
 make test
 ```
@@ -59,8 +59,10 @@ adalah mengerjakan pipeline World Bank sebagai sumber data nyata pertama.
 ## Perintah harian
 
 ```bash
-source .venv/bin/activate
+source .venv/bin/activate.fish
 make check
 make pipeline
+make marts
+make quality
 make api
 ```

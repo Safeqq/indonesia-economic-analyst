@@ -1,4 +1,4 @@
-.PHONY: setup database check lint test test-integration pipeline api
+.PHONY: setup database check lint test test-integration pipeline marts quality api
 
 PYTHON := .venv/bin/python
 
@@ -18,11 +18,16 @@ test:
 	$(PYTHON) -m pytest -q
 
 test-integration:
-	RUN_DB_INTEGRATION=1 $(PYTHON) -m pytest -q \
-		tests/pipeline/test_load_integration.py
+	RUN_DB_INTEGRATION=1 $(PYTHON) -m pytest -q -m integration
 
 pipeline:
 	$(PYTHON) -m pipelines.jobs.run_pipeline
+
+marts:
+	$(PYTHON) scripts/build_marts.py
+
+quality:
+	$(PYTHON) scripts/check_data_quality.py
 
 api:
 	$(PYTHON) -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
