@@ -1,0 +1,13 @@
+sources:
+  bps:
+    name: Badan Pusat Statistik
+    base_url: https://webapi.bps.go.id/v1/api
+    requires_api_key: true
+  world_bank:
+    name: World Bank Open Data
+    base_url: https://api.worldbank.org/v2
+    requires_api_key: false
+  bank_indonesia:
+    name: Bank Indonesia
+    base_url: https://www.bi.go.id/id/statistik/default.aspx
+    requires_api_key: false

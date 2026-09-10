@@ -1,0 +1,17 @@
+services:
+  mysql:
+    # Opsional. Pengguna Arch Linux dengan MariaDB aktif tidak perlu menjalankan service ini.
+    image: mariadb:12
+    environment:
+      MARIADB_DATABASE: economic_intelligence
+      MARIADB_USER: analyst
+      MARIADB_PASSWORD: change_me
+      MARIADB_ROOT_PASSWORD: change_root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  mysql_data:
