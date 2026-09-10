@@ -72,5 +72,6 @@ make pipeline-bi
 make marts
 make quality
 make verify-bi
+make eda
 make api
 ```

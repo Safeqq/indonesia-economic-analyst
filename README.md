@@ -6,7 +6,7 @@ sudah tersedia dan memerlukan token pengguna untuk pengambilan produksi.
 
 ## Komponen
 
-- MySQL untuk penyimpanan dan analytical marts
+- MariaDB untuk penyimpanan dan analytical marts
 - Python untuk proses extract, transform, dan load
 - FastAPI untuk data service
 - Next.js untuk dashboard interaktif
@@ -40,6 +40,7 @@ make verify-bi  # memeriksa dua seri BI, periode, dan run produksi terbaru
 make schema     # menerapkan penambahan schema secara idempotent
 make marts      # membuat ulang staging dan analytical views
 make quality    # menjalankan pemeriksaan kualitas dan freshness
+make eda        # menjalankan lima notebook dan menyimpan salinan ber-output
 make api        # menjalankan FastAPI pada http://127.0.0.1:8000
 make test       # menjalankan unit test
 make test-integration  # menguji idempotensi dengan tabel sementara MariaDB
@@ -105,6 +106,9 @@ make quality
 ```
 
 Definisi grain, metrik, dan interpretasi mart tersedia di `docs/marts.md`.
+Panduan notebook, metode analisis, dan lokasi hasil eksekusi tersedia di
+`docs/eda.md`. Notebook sumber tetap bersih dari output; `make eda` menulis hasil
+terbaru ke `data/exports/notebooks/` dan grafik PNG ke `data/exports/eda/`.
 
 Project tidak menggunakan data dummy. Isi `data/raw` hanya berasal dari sumber
 resmi; data buatan terbatas pada fixture test yang terisolasi.

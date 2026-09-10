@@ -63,5 +63,19 @@ Transform hanya memuat bulan kalender lengkap. Kedua seri memakai tanggal pertam
 bulan sehingga dapat di-join langsung, sedangkan `observation_year` mendukung
 penggabungan dengan indikator tahunan.
 
-Analytics Python, endpoint data FastAPI, dan dashboard belum menjadi bagian alur
-aktif. Komponen tersebut dibangun pada fase berikutnya setelah mart stabil.
+Lapisan analytics Python kini aktif di atas empat mart:
+
+```text
+mart nasional + ASEAN + moneter + regional
+    ↓ loader bersama dan fungsi analitik reusable
+Lima notebook sumber tanpa output
+    ↓ make eda / eksekusi kernel .venv
+Notebook ber-output + grafik PNG di data/exports
+    ↓
+Insight tervalidasi di docs/insights.md
+```
+
+Loader mempertahankan tanggal dan metadata sumber dari mart. Notebook regional
+tetap dapat dieksekusi saat BPS kosong, tetapi tidak menghasilkan cluster sampai
+coverage minimum tersedia. Endpoint data FastAPI dan dashboard dibangun pada fase
+berikutnya.
