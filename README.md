@@ -4,6 +4,8 @@ Project data analyst end-to-end menggunakan data resmi dari World Bank, BPS,
 dan Bank Indonesia. Pipeline World Bank dan Bank Indonesia aktif; pipeline BPS
 sudah tersedia dan memerlukan token pengguna untuk pengambilan produksi. Backend
 FastAPI read-only menyediakan data mart, hasil forecast, dan status operasional.
+Dashboard Next.js menyajikan tujuh ruang analisis responsif dengan filter global,
+grafik interaktif, dan ekspor data yang sedang dilihat.
 
 ## Komponen
 
@@ -45,9 +47,11 @@ make eda        # menjalankan lima notebook dan menyimpan salinan ber-output
 make advanced-analytics  # mengevaluasi model dan membuat forecast jika gate lulus
 make verify-analytics  # memeriksa holdout, quality gate, dan hasil forecast
 make api        # menjalankan FastAPI pada http://127.0.0.1:8000
-make test       # menjalankan unit test
+make dashboard  # menjalankan dashboard pada http://localhost:3000
+make test       # menjalankan test Python dan frontend
 make test-api   # menguji status, schema, input, dan empty state endpoint
 make test-integration  # menguji query nyata dan idempotensi terhadap MariaDB
+make frontend-check  # lint, typecheck, test, dan build dashboard
 ```
 
 Rentang dan indikator dapat dipilih melalui CLI:
@@ -119,6 +123,10 @@ di `docs/advanced_analytics.md`.
 Kontrak endpoint, parameter, pagination, dan contoh request tersedia di
 `docs/api.md`. Setelah `make api`, buka `http://127.0.0.1:8000/docs` untuk mencoba
 API melalui Swagger UI.
+
+Jalankan `make api` dan `make dashboard` pada dua terminal untuk membuka
+dashboard. Panduan halaman, filter, proxy API, dan ekspor tersedia di
+`docs/dashboard.md`.
 
 Project tidak menggunakan data dummy. Isi `data/raw` hanya berasal dari sumber
 resmi; data buatan terbatas pada fixture test yang terisolasi.

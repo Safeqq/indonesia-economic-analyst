@@ -8,13 +8,14 @@ Pastikan MariaDB aktif:
 systemctl status mariadb --no-pager
 ```
 
-Pasang paket sistem bila belum tersedia:
+Pasang paket sistem bila belum tersedia. Dashboard memerlukan Node.js 20.9 atau
+lebih baru:
 
 ```bash
-sudo pacman -S --needed python python-pip mariadb git make
+sudo pacman -S --needed python python-pip mariadb git make nodejs npm
 ```
 
-## 2. Setup environment Python
+## 2. Setup project
 
 Dari root project:
 
@@ -23,8 +24,9 @@ chmod +x scripts/setup_project.sh scripts/init_database.sh
 ./scripts/setup_project.sh
 ```
 
-Script akan membuat virtual environment `.venv`, memasang dependensi, dan
-menyalin `.env.example` menjadi `.env` tanpa menimpa konfigurasi yang sudah ada.
+Script akan membuat virtual environment `.venv`, memasang dependensi Python dan
+frontend dari lockfile, lalu menyalin `.env.example` menjadi `.env` tanpa
+menimpa konfigurasi yang sudah ada.
 
 ## 3. Atur konfigurasi
 
@@ -77,8 +79,18 @@ make advanced-analytics
 make verify-analytics
 make test-api
 make api
+make dashboard
+make frontend-check
 ```
 
 Setelah `make api`, periksa `http://127.0.0.1:8000/health` dan buka dokumentasi
 interaktif di `http://127.0.0.1:8000/docs`. API memerlukan MariaDB aktif karena
 health check juga memeriksa koneksi database.
+
+Dashboard berjalan di `http://localhost:3000` dan meneruskan request
+`/backend/*` ke `http://127.0.0.1:8000` secara default. Untuk alamat API lain,
+jalankan dashboard dengan environment variable, misalnya:
+
+```fish
+env API_BASE_URL=https://api.example.id make dashboard
+```

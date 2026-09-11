@@ -1,6 +1,10 @@
-.PHONY: setup database schema check lint test test-api test-integration pipeline pipeline-bps pipeline-bi verify-bps verify-bi marts quality eda advanced-analytics verify-analytics api
+.PHONY: setup database schema check lint test test-api test-integration
+.PHONY: pipeline pipeline-bps pipeline-bi verify-bps verify-bi marts quality eda
+.PHONY: advanced-analytics verify-analytics api dashboard frontend-install
+.PHONY: frontend-lint frontend-test frontend-build frontend-check
 
 PYTHON := .venv/bin/python
+FRONTEND_NPM := npm --prefix frontend
 
 setup:
 	./scripts/setup_project.sh
@@ -17,9 +21,12 @@ check:
 lint:
 	$(PYTHON) -m ruff format --check analytics backend pipelines scripts tests
 	$(PYTHON) -m ruff check analytics backend pipelines scripts tests
+	$(FRONTEND_NPM) run lint
+	$(FRONTEND_NPM) run typecheck
 
 test:
 	$(PYTHON) -m pytest -q
+	$(FRONTEND_NPM) test
 
 test-api:
 	$(PYTHON) -m pytest -q tests/api/test_api.py
@@ -59,3 +66,21 @@ verify-analytics:
 
 api:
 	$(PYTHON) -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+
+dashboard:
+	$(FRONTEND_NPM) run dev
+
+frontend-install:
+	$(FRONTEND_NPM) ci
+
+frontend-lint:
+	$(FRONTEND_NPM) run lint
+	$(FRONTEND_NPM) run typecheck
+
+frontend-test:
+	$(FRONTEND_NPM) test
+
+frontend-build:
+	$(FRONTEND_NPM) run build
+
+frontend-check: frontend-lint frontend-test frontend-build

@@ -9,6 +9,20 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+  echo "Node.js dan npm belum terpasang. Instal dengan: sudo pacman -S nodejs npm"
+  exit 1
+fi
+
+node - <<'JS'
+const [major, minor] = process.versions.node.split(".").map(Number);
+if (major < 20 || (major === 20 && minor < 9)) {
+  console.error("Dashboard membutuhkan Node.js 20.9 atau lebih baru");
+  process.exit(1);
+}
+console.log(`Node.js ${process.versions.node} terdeteksi`);
+JS
+
 python3 - <<'PY'
 import sys
 
@@ -23,6 +37,7 @@ fi
 
 .venv/bin/python -m pip install --upgrade pip
 .venv/bin/python -m pip install -r requirements.txt
+npm --prefix frontend ci
 
 if [[ ! -f .env ]]; then
   cp .env.example .env
@@ -34,4 +49,4 @@ fi
 mkdir -p data/raw/bps data/raw/bank_indonesia data/raw/world_bank
 mkdir -p data/processed data/exports logs
 
-echo "Setup Python selesai. Langkah berikutnya: edit .env lalu jalankan ./scripts/init_database.sh"
+echo "Setup project selesai. Langkah berikutnya: edit .env lalu jalankan ./scripts/init_database.sh"

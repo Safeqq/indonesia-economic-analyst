@@ -114,4 +114,19 @@ MariaDB dimensions + facts + marts + quality queries
 Semua endpoint bersifat read-only. Error database diubah menjadi respons 503
 tanpa membocorkan exception internal, sedangkan pelanggaran invariant data
 menghasilkan 500. Schema OpenAPI berasal dari response model Pydantic. Dashboard
-Next.js menjadi konsumen API pada fase berikutnya.
+Next.js menjadi konsumen read-only melalui rewrite `/backend/*`, sehingga alamat
+FastAPI tetap berada di sisi server Next.js dan browser tidak memerlukan CORS.
+
+```text
+Browser desktop/mobile
+    ↓ global filters + client-side loading/error/empty state
+Next.js App Router
+    ↓ rewrite /backend/*
+FastAPI /api/v1
+    ↓ response schema tervalidasi
+ECharts + KPI + tabel + export CSV
+```
+
+Katalog indikator dan wilayah selalu berasal dari API. Perhitungan perubahan,
+korelasi Pearson, dan penyelarasan tanggal dilakukan dari observasi yang sedang
+dilihat. Dashboard tidak menyimpan angka observasi produksi di source code.
