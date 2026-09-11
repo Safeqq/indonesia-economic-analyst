@@ -2,7 +2,8 @@
 
 Project data analyst end-to-end menggunakan data resmi dari World Bank, BPS,
 dan Bank Indonesia. Pipeline World Bank dan Bank Indonesia aktif; pipeline BPS
-sudah tersedia dan memerlukan token pengguna untuk pengambilan produksi.
+sudah tersedia dan memerlukan token pengguna untuk pengambilan produksi. Backend
+FastAPI read-only menyediakan data mart, hasil forecast, dan status operasional.
 
 ## Komponen
 
@@ -45,7 +46,8 @@ make advanced-analytics  # mengevaluasi model dan membuat forecast jika gate lul
 make verify-analytics  # memeriksa holdout, quality gate, dan hasil forecast
 make api        # menjalankan FastAPI pada http://127.0.0.1:8000
 make test       # menjalankan unit test
-make test-integration  # menguji idempotensi dengan tabel sementara MariaDB
+make test-api   # menguji status, schema, input, dan empty state endpoint
+make test-integration  # menguji query nyata dan idempotensi terhadap MariaDB
 ```
 
 Rentang dan indikator dapat dipilih melalui CLI:
@@ -113,6 +115,10 @@ Panduan notebook, metode analisis, dan lokasi hasil eksekusi tersedia di
 terbaru ke `data/exports/notebooks/` dan grafik PNG ke `data/exports/eda/`.
 Forecasting tervalidasi, quality gate, deteksi anomali, dan tabel hasil dijelaskan
 di `docs/advanced_analytics.md`.
+
+Kontrak endpoint, parameter, pagination, dan contoh request tersedia di
+`docs/api.md`. Setelah `make api`, buka `http://127.0.0.1:8000/docs` untuk mencoba
+API melalui Swagger UI.
 
 Project tidak menggunakan data dummy. Isi `data/raw` hanya berasal dari sumber
 resmi; data buatan terbatas pada fixture test yang terisolasi.

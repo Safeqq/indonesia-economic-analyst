@@ -1,8 +1,8 @@
-from scripts.apply_schema import SCHEMA_FILES
-from scripts.check_data_quality import (
+from pipelines.utils.data_quality import (
     BLOCKING_CHECK_FILES,
     INFORMATIONAL_CHECK_FILES,
 )
+from scripts.apply_schema import SCHEMA_FILES
 
 
 def test_advanced_analytics_schema_is_registered() -> None:

@@ -97,4 +97,21 @@ JSON metadata + PNG di data/exports/advanced_analytics
 
 Fingerprint data dan konfigurasi menjadi natural key run sehingga eksekusi ulang
 tidak membuat duplikasi. Metadata evaluasi menyimpan setiap prediksi holdout dan
-versi library. Endpoint data FastAPI dan dashboard dibangun pada fase berikutnya.
+versi library.
+
+Lapisan FastAPI menggunakan pemisahan route, service, dan repository:
+
+```text
+HTTP request + validasi Pydantic
+    ↓ backend/api
+Aturan hasil kosong, pagination, dan keamanan forecast
+    ↓ backend/services
+SQL berparameter dan koneksi SQLAlchemy
+    ↓ backend/repositories
+MariaDB dimensions + facts + marts + quality queries
+```
+
+Semua endpoint bersifat read-only. Error database diubah menjadi respons 503
+tanpa membocorkan exception internal, sedangkan pelanggaran invariant data
+menghasilkan 500. Schema OpenAPI berasal dari response model Pydantic. Dashboard
+Next.js menjadi konsumen API pada fase berikutnya.

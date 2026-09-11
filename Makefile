@@ -1,4 +1,4 @@
-.PHONY: setup database schema check lint test test-integration pipeline pipeline-bps pipeline-bi verify-bps verify-bi marts quality eda advanced-analytics verify-analytics api
+.PHONY: setup database schema check lint test test-api test-integration pipeline pipeline-bps pipeline-bi verify-bps verify-bi marts quality eda advanced-analytics verify-analytics api
 
 PYTHON := .venv/bin/python
 
@@ -20,6 +20,9 @@ lint:
 
 test:
 	$(PYTHON) -m pytest -q
+
+test-api:
+	$(PYTHON) -m pytest -q tests/api/test_api.py
 
 test-integration:
 	RUN_DB_INTEGRATION=1 $(PYTHON) -m pytest -q -m integration

@@ -1,8 +1,8 @@
-from scripts.build_marts import MART_SQL_FILES
-from scripts.check_data_quality import (
+from pipelines.utils.data_quality import (
     BLOCKING_CHECK_FILES,
     INFORMATIONAL_CHECK_FILES,
 )
+from scripts.build_marts import MART_SQL_FILES
 
 
 def test_all_required_mart_files_are_registered():

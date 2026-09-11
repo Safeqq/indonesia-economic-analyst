@@ -75,5 +75,10 @@ make verify-bi
 make eda
 make advanced-analytics
 make verify-analytics
+make test-api
 make api
 ```
+
+Setelah `make api`, periksa `http://127.0.0.1:8000/health` dan buka dokumentasi
+interaktif di `http://127.0.0.1:8000/docs`. API memerlukan MariaDB aktif karena
+health check juga memeriksa koneksi database.

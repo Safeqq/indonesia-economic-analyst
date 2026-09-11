@@ -5,12 +5,12 @@ import pytest
 from dotenv import load_dotenv
 from sqlalchemy import inspect, text
 
-from pipelines.utils.database import get_engine
-from scripts.build_marts import build_marts
-from scripts.check_data_quality import (
+from pipelines.utils.data_quality import (
     BLOCKING_CHECK_FILES,
     INFORMATIONAL_CHECK_FILES,
 )
+from pipelines.utils.database import get_engine
+from scripts.build_marts import build_marts
 
 pytestmark = [
     pytest.mark.integration,

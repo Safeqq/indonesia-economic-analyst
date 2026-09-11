@@ -99,3 +99,7 @@ anomali ekonomi; setiap alasan numeriknya tersedia pada artefak dan database.
 
 Hasil ini bergantung pada versi data saat run, spesifikasi model yang terbatas,
 dan holdout 24 bulan. Kinerja historis tidak menjamin akurasi masa depan.
+
+Run terbaru dapat dibaca melalui
+`GET /api/v1/forecasts/BI.JISDOR.USD_IDR.MONTHLY_AVG`. Endpoint mempertahankan
+quality gate dan tidak mengembalikan angka sebagai fakta observasi.
