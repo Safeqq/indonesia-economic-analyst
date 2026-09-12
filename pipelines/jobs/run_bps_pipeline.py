@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-import sys
+import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -32,8 +32,10 @@ from pipelines.utils.bps_config import (
     load_bps_provinces,
 )
 from pipelines.utils.database import get_engine
+from pipelines.utils.structured_logging import configure_logging, log_event
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -123,19 +125,41 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     load_dotenv(PROJECT_ROOT / ".env")
+    configure_logging()
     try:
         result = execute_bps_pipeline(args.variables)
     except Exception as error:
-        print(f"Pipeline BPS gagal: {error}", file=sys.stderr)
+        log_event(
+            LOGGER,
+            logging.ERROR,
+            "pipeline_failed",
+            "Pipeline BPS gagal",
+            source_code=SOURCE_CODE,
+            error_type=error.__class__.__name__,
+            error=str(error),
+        )
         return 1
 
-    print(
-        f"Pipeline BPS selesai: {result.rows_loaded} observasi dimuat "
-        f"(run_id={result.run_id})"
+    log_event(
+        LOGGER,
+        logging.INFO,
+        "pipeline_succeeded",
+        "Pipeline BPS selesai",
+        source_code=SOURCE_CODE,
+        rows_loaded=result.rows_loaded,
+        run_id=result.run_id,
+        raw_snapshot=result.raw_snapshot,
     )
-    print(f"Raw snapshot: {result.raw_snapshot}")
     for variable_id, series in result.complete_series.items():
-        print(f"[OK] Variabel {variable_id}: cakupan provinsi lengkap pada {series}")
+        log_event(
+            LOGGER,
+            logging.INFO,
+            "pipeline_coverage_validated",
+            "Cakupan provinsi BPS lengkap",
+            source_code=SOURCE_CODE,
+            variable_id=variable_id,
+            series=series,
+        )
     return 0
 
 

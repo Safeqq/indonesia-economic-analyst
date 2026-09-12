@@ -54,6 +54,9 @@ def check_database() -> None:
         "fact_forecast_run",
         "fact_forecast",
         "fact_anomaly_event",
+        "schema_migration",
+        "data_freshness_alert",
+        "pipeline_schedule_run",
     }
     existing_tables = set(inspect(engine).get_table_names())
     missing_tables = required_tables - existing_tables

@@ -149,3 +149,28 @@ adalah `missing_value`, `source_revision`, atau `economic_anomaly`. Tabel menyim
 nilai/perubahan bila tersedia, robust score, threshold, metode, dan alasan.
 `economic_anomaly` berarti kandidat statistik untuk ditinjau, bukan bukti error
 data atau penyebab ekonomi tertentu.
+
+## `schema_migration`
+
+Grain: satu baris per versi migration yang pernah berhasil diterapkan. `version`
+berasal dari awalan nama file di `database/migrations/`; `checksum` adalah SHA-256
+isi file. Perubahan checksum pada versi yang sudah tercatat dianggap drift dan
+menghentikan deployment. `applied_at` menggunakan UTC.
+
+## `pipeline_schedule_run`
+
+Grain: satu eksekusi logis untuk satu sumber dan periode jadwal. Periode bulanan
+disimpan sebagai tanggal pertama bulan, sedangkan periode tahunan sebagai 1
+Januari. Unique constraint `source_code + scheduled_period` membuat retry
+memperbarui catatan periode yang sama. `attempts` mencatat jumlah percobaan,
+`rows_loaded` menjumlahkan observasi yang diproses, dan `error_message` hanya
+diisi pada status `failed`.
+
+## `data_freshness_alert`
+
+Grain: satu jenis alert aktif atau historis per sumber. `alert_key` adalah SHA-256
+dari sumber dan jenis alert. Jenis yang tersedia adalah belum pernah ada run
+sukses, belum ada observasi, ingestion terlambat, dan periode observasi terlambat.
+`first_detected_at` mempertahankan waktu temuan pertama, `last_detected_at`
+diperbarui selama masalah masih ada, dan `resolved_at` diisi ketika pemeriksaan
+berikutnya menyatakan masalah tersebut pulih.

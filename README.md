@@ -41,8 +41,9 @@ make pipeline-bi  # mengambil BI-Rate dan JISDOR hingga bulan lengkap terakhir
 make verify-bps  # memeriksa dua variabel dan cakupan 38 provinsi di database
 make verify-bi  # memeriksa dua seri BI, periode, dan run produksi terbaru
 make schema     # menerapkan penambahan schema secara idempotent
+make migrate    # menerapkan migration baru dan memeriksa checksum riwayat
 make marts      # membuat ulang staging dan analytical views
-make quality    # menjalankan pemeriksaan kualitas dan freshness
+make quality    # menjalankan pemeriksaan kualitas data
 make eda        # menjalankan lima notebook dan menyimpan salinan ber-output
 make advanced-analytics  # mengevaluasi model dan membuat forecast jika gate lulus
 make verify-analytics  # memeriksa holdout, quality gate, dan hasil forecast
@@ -52,6 +53,10 @@ make test       # menjalankan test Python dan frontend
 make test-api   # menguji status, schema, input, dan empty state endpoint
 make test-integration  # menguji query nyata dan idempotensi terhadap MariaDB
 make frontend-check  # lint, typecheck, test, dan build dashboard
+make frontend-smoke  # membuka tujuh halaman di Chromium desktop dan mobile
+make schedule-dry-run  # melihat sumber jatuh tempo tanpa mengambil data
+make scheduled-run  # menjalankan pipeline dan pemeriksaan operasional terjadwal
+make freshness  # menghasilkan alert bila data melewati ambang freshness
 ```
 
 Rentang dan indikator dapat dipilih melalui CLI:
@@ -130,3 +135,45 @@ dashboard. Panduan halaman, filter, proxy API, dan ekspor tersedia di
 
 Project tidak menggunakan data dummy. Isi `data/raw` hanya berasal dari sumber
 resmi; data buatan terbatas pada fixture test yang terisolasi.
+
+## Automation
+
+Scheduler dijalankan setiap hari, tetapi hanya mengambil sumber yang sudah jatuh
+tempo menurut `config/automation.yml`: Bank Indonesia setelah tanggal 5 setiap
+bulan, World Bank setelah 15 Juli setiap tahun, dan BPS setelah 15 November setiap
+tahun. World Bank memperbarui seluruh 11 negara ASEAN yang dipakai mart. Hanya run
+scheduler yang selesai untuk seluruh scope yang menutup jadwal periode tersebut;
+run manual atau attempt parsial tidak menahan pemulihan otomatis.
+
+```fish
+make schema
+make schedule-dry-run
+.venv/bin/python -m pipelines.jobs.run_scheduled_pipelines \
+  --source world_bank \
+  --source bank_indonesia
+```
+
+Setiap run memegang named lock MariaDB agar dua scheduler tidak menulis bersamaan.
+Kegagalan koneksi, timeout, HTTP 429, dan HTTP 5xx dapat dicoba ulang dengan
+backoff. Error schema atau validasi langsung menghentikan attempt. Load fakta tetap
+memakai transaksi, unique constraint, dan upsert, sehingga retry tidak menambah
+natural key duplikat.
+
+`make freshness` mengembalikan exit code `1` ketika ada alert dan menyimpan status
+ke `data_freshness_alert`. Saat ini pemeriksaan lengkap memang memberi alert untuk
+BPS sampai `BPS_API_KEY` diisi dan pengambilan produksi pertamanya berhasil.
+
+## Deployment
+
+Stack produksi satu host tersedia di `docker-compose.production.yml`. Isi password
+aplikasi dan root MariaDB yang kuat di `.env`, lalu jalankan:
+
+```fish
+make deployment-config
+docker compose --env-file .env -f docker-compose.production.yml up -d --build
+make deployment-smoke
+```
+
+Service migration harus selesai sebelum API dimulai, dan dashboard menunggu health
+API. Template timer harian berada di `deploy/systemd/`. Langkah instalasi, rollback,
+backup, dan pemeriksaan setelah deploy dijelaskan di `docs/operations.md`.

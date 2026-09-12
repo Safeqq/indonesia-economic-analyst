@@ -1,0 +1,32 @@
+timezone: Asia/Jakarta
+lock:
+  name: indonesia_economic_intelligence_scheduler
+  timeout_seconds: 0
+retry:
+  attempts: 3
+  base_delay_seconds: 5
+sources:
+  world_bank:
+    frequency: annual
+    run_after:
+      month: 7
+      day: 15
+    pipeline_options:
+      countries: [BRN, KHM, IDN, LAO, MYS, MMR, PHL, SGP, THA, TLS, VNM]
+      start_year: 2000
+    max_ingestion_age_hours: 9000
+    max_observation_lag_days: 730
+  bps:
+    frequency: annual
+    run_after:
+      month: 11
+      day: 15
+    credential_environment: BPS_API_KEY
+    max_ingestion_age_hours: 9000
+    max_observation_lag_days: 730
+  bank_indonesia:
+    frequency: monthly
+    run_after:
+      day: 5
+    max_ingestion_age_hours: 1080
+    max_observation_lag_days: 75

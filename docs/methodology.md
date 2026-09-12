@@ -72,3 +72,40 @@ lengkap.
 Kedua hasil memakai tanggal pertama bulan sebagai label periode dan tetap diberi
 nama yang menjelaskan transformasinya. Snapshot sumber mentah dipertahankan agar
 angka turunan dapat dihitung ulang dan direkonsiliasi.
+
+## Jadwal, retry, dan freshness
+
+Frekuensi publikasi model menentukan cadence scheduler. Seri bulanan Bank
+Indonesia diperiksa sesudah hari kelima bulan berikutnya agar bulan kalender
+sebelumnya sudah lengkap. Seri tahunan World Bank dan BPS diperiksa sekali per
+tahun setelah tanggal konfigurasi. Scheduler harian hanya bertugas mengevaluasi
+keputusan tersebut; `--force` disediakan untuk backfill atau pemulihan manual.
+Cadence membaca run sukses dari `pipeline_schedule_run`, sehingga run manual yang
+mungkin hanya mencakup sebagian negara atau indikator tidak menutup jadwal sumber.
+
+HTTP GET sudah memiliki retry pada tingkat request. Scheduler menambahkan retry
+terbatas pada tingkat job untuk timeout, kegagalan koneksi, HTTP 429, HTTP 5xx,
+dan `OperationalError` database. Delay bertambah secara eksponensial. Error
+konfigurasi, schema drift, parsing, atau validasi tidak dicoba ulang. Setiap
+attempt tetap tercatat, sedangkan fakta memakai upsert transaksional pada natural
+key sehingga pengulangan tidak menggandakan observasi.
+
+Freshness dinilai dari dua sinyal: umur `ingested_at` terbaru dan jarak tanggal
+observasi terbaru terhadap waktu pemeriksaan. Ambang berbeda per sumber dan
+disimpan di `config/automation.yml`. Tidak adanya run sukses atau observasi adalah
+alert kritis. Pelampauan ambang waktu adalah warning yang tetap menghasilkan exit
+code gagal agar systemd, CI, atau monitor eksternal dapat menangkapnya.
+
+## Strategi migration
+
+Migration bersifat forward-only dan berurutan. Nama file memakai format
+`NNN_nama_deskriptif.sql`. SHA-256 setiap file disimpan di `schema_migration`;
+checksum yang berubah menghentikan proses agar riwayat database tidak ditulis
+ulang diam-diam. Perubahan harus backward-compatible selama API lama masih hidup.
+Sebelum migration yang mengubah data atau kolom, buat backup MariaDB dan uji
+restore. Rollback dilakukan dengan mengembalikan image aplikasi lalu menerapkan
+forward-fix; file migration lama tidak diedit.
+
+Semua koneksi aplikasi menetapkan session MariaDB ke UTC. Timestamp operasional
+disimpan dan dibandingkan sebagai UTC agar umur ingestion tidak bergantung pada
+timezone host database; tanggal observasi ekonomi tetap memakai tanggal sumber.

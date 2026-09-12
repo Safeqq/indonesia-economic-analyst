@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-import sys
+import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -20,10 +20,12 @@ from pipelines.transform.clean_economic_data import clean_world_bank
 from pipelines.transform.validate_data import validate
 from pipelines.utils.config import IndicatorDefinition, load_indicator_definitions
 from pipelines.utils.database import get_engine
+from pipelines.utils.structured_logging import configure_logging, log_event
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_START_YEAR = 2000
 DEFAULT_END_YEAR = datetime.now(UTC).year - 1
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -118,6 +120,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     load_dotenv(PROJECT_ROOT / ".env")
+    configure_logging()
     try:
         result = execute_pipeline(
             country=args.country,
@@ -126,14 +129,27 @@ def main(argv: list[str] | None = None) -> int:
             end_year=args.end_year,
         )
     except Exception as error:
-        print(f"Pipeline World Bank gagal: {error}", file=sys.stderr)
+        log_event(
+            LOGGER,
+            logging.ERROR,
+            "pipeline_failed",
+            "Pipeline World Bank gagal",
+            source_code=SOURCE_CODE,
+            error_type=error.__class__.__name__,
+            error=str(error),
+        )
         return 1
 
-    print(
-        f"Pipeline selesai: {result.rows_loaded} observasi dimuat "
-        f"(run_id={result.run_id})"
+    log_event(
+        LOGGER,
+        logging.INFO,
+        "pipeline_succeeded",
+        "Pipeline World Bank selesai",
+        source_code=SOURCE_CODE,
+        rows_loaded=result.rows_loaded,
+        run_id=result.run_id,
+        raw_snapshot=result.raw_snapshot,
     )
-    print(f"Raw snapshot: {result.raw_snapshot}")
     return 0
 
 

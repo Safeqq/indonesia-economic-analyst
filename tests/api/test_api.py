@@ -265,6 +265,16 @@ async def test_all_target_endpoints_return_documented_schema(
 
 
 @pytest.mark.anyio
+async def test_api_returns_request_id_for_operational_trace(
+    client: AsyncClient,
+) -> None:
+    response = await client.get("/health")
+
+    assert response.status_code == 200
+    assert response.headers["X-Request-ID"]
+
+
+@pytest.mark.anyio
 async def test_paginated_empty_result_returns_empty_list(
     client: AsyncClient, repository: Mock
 ) -> None:

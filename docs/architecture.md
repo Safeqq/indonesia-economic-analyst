@@ -130,3 +130,42 @@ ECharts + KPI + tabel + export CSV
 Katalog indikator dan wilayah selalu berasal dari API. Perhitungan perubahan,
 korelasi Pearson, dan penyelarasan tanggal dilakukan dari observasi yang sedang
 dilihat. Dashboard tidak menyimpan angka observasi produksi di source code.
+
+Lapisan operasional menjalankan sumber sesuai frekuensinya:
+
+```text
+systemd timer harian / container automation satu kali
+    ↓ config/automation.yml + riwayat run sukses
+keputusan due per sumber
+    ↓ named lock MariaDB
+pipeline sumber + bounded retry untuk error sementara
+    ↓ upsert fakta + pipeline_schedule_run
+rebuild marts → blocking quality checks → advanced analytics bila BI berubah
+    ↓
+freshness thresholds → JSON log + exit code + data_freshness_alert
+```
+
+World Bank dan BPS memakai jadwal tahunan, sedangkan Bank Indonesia memakai jadwal
+bulanan. Retry menjalankan kembali operasi dengan natural key yang sama; unique
+constraint fakta mencegah penambahan observasi duplikat. Validation error tidak
+dicoba ulang karena biasanya menunjukkan perubahan kontrak sumber yang perlu
+ditinjau.
+
+Perubahan database setelah baseline memakai migration maju berurutan. Runner
+mengambil named lock khusus, memverifikasi checksum semua versi yang sudah
+tercatat, menerapkan versi baru, lalu menulis `schema_migration`. File migration
+yang sudah diterapkan tidak boleh diedit. Koneksi SQL menetapkan session timezone
+UTC agar timestamp ingestion, pipeline, alert, dan model konsisten antar-host.
+
+Deployment satu host memisahkan empat tanggung jawab:
+
+```text
+Browser → dashboard Next.js standalone → API FastAPI → MariaDB
+                                          ↑
+                      migration one-shot + automation one-shot
+```
+
+Database hanya tersedia di jaringan internal Compose. API dan dashboard memiliki
+healthcheck; dashboard baru dimulai setelah API sehat, dan API baru dimulai
+setelah migration selesai. TLS dan pembatasan trafik ditempatkan pada reverse
+proxy di depan service.

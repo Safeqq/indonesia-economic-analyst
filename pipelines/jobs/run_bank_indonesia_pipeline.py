@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-import sys
+import logging
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -37,9 +37,11 @@ from pipelines.utils.bank_indonesia_config import (
     load_bank_indonesia_configuration,
 )
 from pipelines.utils.database import get_engine
+from pipelines.utils.structured_logging import configure_logging, log_event
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 JAKARTA_TIMEZONE = ZoneInfo("Asia/Jakarta")
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -134,6 +136,7 @@ def build_parser(
 
 def main(argv: list[str] | None = None) -> int:
     load_dotenv(PROJECT_ROOT / ".env")
+    configure_logging()
     try:
         configuration = load_bank_indonesia_configuration()
         args = build_parser(configuration).parse_args(argv)
@@ -143,21 +146,32 @@ def main(argv: list[str] | None = None) -> int:
             configuration=configuration,
         )
     except Exception as error:
-        print(f"Pipeline Bank Indonesia gagal: {error}", file=sys.stderr)
+        log_event(
+            LOGGER,
+            logging.ERROR,
+            "pipeline_failed",
+            "Pipeline Bank Indonesia gagal",
+            source_code=SOURCE_CODE,
+            error_type=error.__class__.__name__,
+            error=str(error),
+        )
         return 1
 
-    print(
-        f"Pipeline Bank Indonesia selesai: {result.rows_loaded} observasi bulanan "
-        f"dimuat (run_id={result.run_id})"
+    log_event(
+        LOGGER,
+        logging.INFO,
+        "pipeline_succeeded",
+        "Pipeline Bank Indonesia selesai",
+        source_code=SOURCE_CODE,
+        rows_loaded=result.rows_loaded,
+        run_id=result.run_id,
+        bi_rate_event_count=result.bi_rate_event_count,
+        jisdor_daily_count=result.jisdor_daily_count,
+        month_count=result.month_count,
+        raw_manifest=result.raw_snapshot.manifest_path,
+        raw_bi_rate=result.raw_snapshot.bi_rate_path,
+        raw_jisdor=result.raw_snapshot.jisdor_path,
     )
-    print(
-        f"Rekonsiliasi: {result.bi_rate_event_count} keputusan BI-Rate, "
-        f"{result.jisdor_daily_count} observasi JISDOR harian, "
-        f"{result.month_count} bulan"
-    )
-    print(f"Raw manifest: {result.raw_snapshot.manifest_path}")
-    print(f"Raw BI-Rate: {result.raw_snapshot.bi_rate_path}")
-    print(f"Raw JISDOR: {result.raw_snapshot.jisdor_path}")
     return 0
 
 

@@ -54,4 +54,6 @@ for schema_file in database/schema/02_create_dimensions.sql \
   sudo mariadb "$MYSQL_DATABASE" < "$schema_file"
 done
 
-echo "Database ${MYSQL_DATABASE} dan tabel awal berhasil disiapkan."
+.venv/bin/python scripts/apply_migrations.py
+
+echo "Database ${MYSQL_DATABASE}, tabel awal, dan migration berhasil disiapkan."

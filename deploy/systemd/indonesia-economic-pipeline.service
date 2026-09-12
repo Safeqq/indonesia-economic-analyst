@@ -1,0 +1,14 @@
+[Unit]
+Description=Indonesia Economic Intelligence scheduled pipelines
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=iei
+WorkingDirectory=/opt/indonesia-economic-analyst
+ExecStart=/usr/bin/docker compose --env-file .env -f docker-compose.production.yml run --rm automation
+
+[Install]
+WantedBy=multi-user.target

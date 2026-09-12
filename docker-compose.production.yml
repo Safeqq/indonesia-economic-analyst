@@ -1,0 +1,100 @@
+name: indonesia-economic-intelligence
+
+x-python-service: &python-service
+  build:
+    context: .
+    dockerfile: Dockerfile
+  image: indonesia-economic-intelligence-api:local
+  env_file:
+    - .env
+  environment:
+    MYSQL_HOST: database
+    MYSQL_PORT: 3306
+    MYSQL_DATABASE: ${MYSQL_DATABASE:-economic_intelligence}
+    MYSQL_USER: ${MYSQL_USER:-analyst}
+    MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD wajib diisi di .env}
+    LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+services:
+  database:
+    image: mariadb:12
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${MYSQL_DATABASE:-economic_intelligence}
+      MARIADB_USER: ${MYSQL_USER:-analyst}
+      MARIADB_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD wajib diisi di .env}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?MARIADB_ROOT_PASSWORD wajib diisi di .env}
+    volumes:
+      - database_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  migration:
+    <<: *python-service
+    command: ["python", "scripts/prepare_database.py"]
+    restart: "no"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  api:
+    <<: *python-service
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"
+      interval: 15s
+      timeout: 6s
+      retries: 5
+      start_period: 15s
+
+  dashboard:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+      args:
+        API_BASE_URL: http://api:8000
+        DEPLOYMENT_VERSION: ${DEPLOYMENT_VERSION:-local}
+    image: indonesia-economic-intelligence-dashboard:local
+    restart: unless-stopped
+    ports:
+      - "${DASHBOARD_PORT:-3000}:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+      interval: 15s
+      timeout: 6s
+      retries: 5
+      start_period: 15s
+
+  automation:
+    <<: *python-service
+    profiles: ["automation"]
+    command: ["python", "-m", "pipelines.jobs.run_scheduled_pipelines"]
+    volumes:
+      - pipeline_data:/app/data
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+
+volumes:
+  database_data:
+  pipeline_data:

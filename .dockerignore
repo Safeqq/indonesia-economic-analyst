@@ -1,0 +1,16 @@
+.git
+.venv
+.env
+.env.*
+!.env.example
+.pytest_cache
+.ruff_cache
+__pycache__
+*.pyc
+frontend
+data/raw
+data/processed
+data/exports
+logs
+notebooks
+tests

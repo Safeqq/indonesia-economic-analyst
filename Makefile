@@ -1,7 +1,8 @@
-.PHONY: setup database schema check lint test test-api test-integration
+.PHONY: setup database schema migrate check lint test test-api test-integration
 .PHONY: pipeline pipeline-bps pipeline-bi verify-bps verify-bi marts quality eda
 .PHONY: advanced-analytics verify-analytics api dashboard frontend-install
-.PHONY: frontend-lint frontend-test frontend-build frontend-check
+.PHONY: frontend-lint frontend-test frontend-build frontend-smoke frontend-check
+.PHONY: scheduled-run schedule-dry-run freshness deployment-config deployment-smoke
 
 PYTHON := .venv/bin/python
 FRONTEND_NPM := npm --prefix frontend
@@ -14,6 +15,10 @@ database:
 
 schema:
 	$(PYTHON) scripts/apply_schema.py
+	$(PYTHON) scripts/apply_migrations.py
+
+migrate:
+	$(PYTHON) scripts/apply_migrations.py
 
 check:
 	$(PYTHON) scripts/check_setup.py
@@ -55,6 +60,15 @@ marts:
 quality:
 	$(PYTHON) scripts/check_data_quality.py
 
+freshness:
+	$(PYTHON) scripts/check_data_freshness.py
+
+scheduled-run:
+	$(PYTHON) -m pipelines.jobs.run_scheduled_pipelines
+
+schedule-dry-run:
+	$(PYTHON) -m pipelines.jobs.run_scheduled_pipelines --dry-run
+
 eda:
 	MPLCONFIGDIR=data/exports/.matplotlib $(PYTHON) scripts/run_eda_notebooks.py
 
@@ -83,4 +97,13 @@ frontend-test:
 frontend-build:
 	$(FRONTEND_NPM) run build
 
+frontend-smoke:
+	$(FRONTEND_NPM) run test:smoke
+
 frontend-check: frontend-lint frontend-test frontend-build
+
+deployment-config:
+	docker compose --env-file .env -f docker-compose.production.yml config --quiet
+
+deployment-smoke:
+	$(PYTHON) scripts/smoke_deployment.py

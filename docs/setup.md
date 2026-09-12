@@ -12,7 +12,17 @@ Pasang paket sistem bila belum tersedia. Dashboard memerlukan Node.js 20.9 atau
 lebih baru:
 
 ```bash
-sudo pacman -S --needed python python-pip mariadb git make nodejs npm
+sudo pacman -S --needed python python-pip mariadb git make nodejs npm chromium
+```
+
+Chromium dipakai oleh `make frontend-smoke` untuk membuka seluruh halaman pada
+viewport desktop dan mobile. Lokasi browser lain dapat diberikan lewat
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`.
+
+Deployment container juga memerlukan Docker Engine dan plugin Compose:
+
+```bash
+sudo pacman -S --needed docker docker-compose
 ```
 
 ## 2. Setup project
@@ -48,8 +58,8 @@ Pipeline Bank Indonesia tidak memerlukan API key.
 
 Script memakai autentikasi socket melalui `sudo mariadb`, membuat database,
 user aplikasi lokal, dan tabel awal. Script tidak menghapus database yang ada.
-Setelah menarik perubahan schema baru, jalankan `make schema`; perintah ini hanya
-menjalankan `CREATE ... IF NOT EXISTS` melalui user aplikasi.
+Setelah menarik perubahan schema baru, jalankan `make schema`; perintah ini
+menjalankan bootstrap idempotent dan migration forward-only melalui user aplikasi.
 
 ## 5. Verifikasi
 
@@ -81,6 +91,7 @@ make test-api
 make api
 make dashboard
 make frontend-check
+make frontend-smoke
 ```
 
 Setelah `make api`, periksa `http://127.0.0.1:8000/health` dan buka dokumentasi

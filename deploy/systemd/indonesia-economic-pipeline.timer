@@ -1,0 +1,11 @@
+[Unit]
+Description=Check Indonesia Economic Intelligence pipeline schedules daily
+
+[Timer]
+OnCalendar=*-*-* 06:15:00 Asia/Jakarta
+Persistent=true
+RandomizedDelaySec=10m
+Unit=indonesia-economic-pipeline.service
+
+[Install]
+WantedBy=timers.target
